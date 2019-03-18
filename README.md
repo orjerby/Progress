@@ -1,4 +1,5 @@
 # Instructions
+in the server folder, create config/dev.env file and enter the code: PORT=3001.  
 npm install from root folder.  
 npm install from client folder.  
 npm run dev from root folder.  
