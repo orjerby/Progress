@@ -1,5 +1,5 @@
 import React from 'react'
-import { Router, Route, Link } from 'react-router-dom'
+import { Router, Route, Switch, Link } from 'react-router-dom'
 
 import history from '../history'
 import Home from './Home'
@@ -15,9 +15,11 @@ export default () => {
                     <Link to="/">Home</Link>
                     <Link to="/login">Login</Link>
 
-                    {/* our routes */}
-                    <Route path="/" exact component={Home} />
-                    <Route path="/login" exact component={Login} />
+                    {/* our routes. Switch only render the first route that matches the url */}
+                    <Switch>
+                        <Route path="/" exact component={Home} />
+                        <Route path="/login" exact component={Login} />
+                    </Switch>
                 </div>
             </Router>
         </div>
