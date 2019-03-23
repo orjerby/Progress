@@ -7,8 +7,8 @@ const router = express.Router()
 router.post('/littles', async (req, res) => {
     const _id = req.body.secondary
     const little = req.body.little
-    if (!little) {
-        return res.status(400).send('you must include little object')
+    if (!_id || !little) {
+        return res.status(400).send('you must include secondary property and little object')
     }
 
     const updates = Object.keys(little)
@@ -48,12 +48,8 @@ router.patch('/littles/:_id', async (req, res) => {
     const secondaryId = req.body.secondary
     const little = req.body.little // the updated little
 
-    if (!secondaryId) {
-        return res.status(400).send('you must include secondary property')
-    }
-
-    if (!little) {
-        return res.status(400).send('you must include little object')
+    if (!secondaryId || !little) {
+        return res.status(400).send('you must include secondary property and little object')
     }
 
     const updates = Object.keys(little)
@@ -81,13 +77,7 @@ router.patch('/littles/:_id', async (req, res) => {
             // use $[random] (unlimited times) to get inside arrays and then you must use arrayFilters to guide the 'random' into the correct object in the array
             // returns the whole document after the update
             $set: updatesObj
-        }, {
-                arrayFilters: [
-                    { "inner._id": _id }
-                ],
-                new: true,
-                runValidators: true
-            })
+        }, { arrayFilters: [{ "inner._id": _id }], new: true, runValidators: true })
 
         if (!task) {
             return res.status(404).send("couldn't find secondary task")

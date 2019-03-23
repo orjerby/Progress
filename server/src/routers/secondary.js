@@ -7,8 +7,8 @@ const router = express.Router()
 router.post('/secondaries', async (req, res) => {
     const _id = req.body.task
     const secondary = req.body.secondary
-    if (!secondary) {
-        return res.status(400).send('you must include secondary object')
+    if (!_id || !secondary) {
+        return res.status(400).send('you must include task property and secondary object')
     }
 
     const updates = Object.keys(secondary)
@@ -60,9 +60,7 @@ router.patch('/secondaries/:_id', async (req, res) => {
     try {
         const task = await Task.findOneAndUpdate({ "secondary._id": _id }, {
             $set: updatesObj
-        }, {
-                new: true, runValidators: true
-            })
+        }, { new: true, runValidators: true })
 
         if (!task) {
             return res.status(404).send("couldn't find secondary task")

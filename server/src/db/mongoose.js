@@ -1,8 +1,6 @@
 const mongoose = require('mongoose')
 
-mongoose.connect('mongodb://localhost/progress', {
+mongoose.connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
     useFindAndModify: false
-}, () => {
-    console.log('connected')
 })

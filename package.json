@@ -4,8 +4,7 @@
   "description": "Testing",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"cd client && npm start\" \"env-cmd server/config/dev.env nodemon server/src/index.js\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"cd client && npm start\" \"env-cmd server/config/dev.env nodemon server/src/index.js\""
   },
   "repository": {
     "type": "git",
@@ -22,10 +21,5 @@
     "concurrently": "4.1.0",
     "env-cmd": "8.0.2",
     "nodemon": "1.18.10"
-  },
-  "dependencies": {
-    "express": "4.16.4",
-    "mongodb": "3.1.13",
-    "mongoose": "5.4.19"
   }
 }
