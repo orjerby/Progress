@@ -1,4 +1,5 @@
-# Instructions
+# Progress
+### Developing
 in the server folder, create config/dev.env file and copy the code:
 ```
 PORT=3001
@@ -17,4 +18,4 @@ in the server folder, create config/test.env file and copy the code:
 PORT=3001
 MONGODB_URL=mongodb://127.0.0.1:27017/progress-test
 ```
-npm run test from server folder.  
+npm run test from server folder.
