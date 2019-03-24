@@ -16,10 +16,23 @@ const projectTwo = {
     description: 'My second project'
 }
 
+const littleOneId = new mongoose.Types.ObjectId()
+const littleOne = {
+    _id: littleOneId,
+    description: "My first little."
+}
+
+const littleTwoId = new mongoose.Types.ObjectId()
+const littleTwo = {
+    _id: littleTwoId,
+    description: "My second little."
+}
+
 const secondaryOneId = new mongoose.Types.ObjectId()
 const secondaryOne = {
     _id: secondaryOneId,
-    description: "My first secondary."
+    description: "My first secondary.",
+    little: [littleOne, littleTwo]
 }
 
 const secondaryTwoId = new mongoose.Types.ObjectId()
@@ -66,5 +79,9 @@ module.exports = {
     secondaryTwo,
     secondaryOneId,
     secondaryTwoId,
+    littleOne,
+    littleTwo,
+    littleOneId,
+    littleTwoId,
     setupDatabase
 }

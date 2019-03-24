@@ -120,7 +120,7 @@ router.delete('/littles/:_id', async (req, res) => {
         task.secondary.forEach(s => {
             s.little.forEach(l => {
                 if (l._id.toString() === _id.toString()) {
-                    return res.status(201).send(l)
+                    return res.status(200).send(l)
                 }
             })
         })

@@ -95,9 +95,18 @@ describe('secondaries', () => {
                 .patch(`/secondaries/${secondaryOneId}`)
                 .send({
                     _id: "111111111111111111111111",
-                    description: "My first secondary."
+                    description: "My first updated secondary."
                 })
                 .expect(400)
+            const task = await Task.findById(taskOneId)
+            let foundSecondary = false
+            task.secondary.forEach(s => {
+                if (s._id.toString() === secondaryOneId.toString()) {
+                    expect(s._id).not.toEqual("111111111111111111111111")
+                    return foundSecondary = true
+                }
+            })
+            expect(foundSecondary).toEqual(true)
         })
 
         test('Should not update secondary with empty description', async () => {
@@ -122,7 +131,7 @@ describe('secondaries', () => {
             await request(app)
                 .patch('/secondaries/111111111111111111111111')
                 .send({
-                    description: "My first secondary."
+                    description: "My first updated secondary."
                 })
                 .expect(404)
         })
