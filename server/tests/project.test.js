@@ -1,7 +1,7 @@
 const request = require('supertest')
 const app = require('../src/app')
 const Project = require('../src/models/project')
-const { projectOne, projectTwo, projectOneId, projectTwoId, setupDatabase } = require('./fixtures/db')
+const { projectOne, projectOneId, setupDatabase } = require('./fixtures/db')
 
 beforeEach(setupDatabase)
 
