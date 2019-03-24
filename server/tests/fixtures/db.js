@@ -16,11 +16,25 @@ const projectTwo = {
     description: 'My second project'
 }
 
+const secondaryOneId = new mongoose.Types.ObjectId()
+const secondaryOne = {
+    _id: secondaryOneId,
+    description: "My first secondary."
+}
+
+const secondaryTwoId = new mongoose.Types.ObjectId()
+const secondaryTwo = {
+    _id: secondaryTwoId,
+    description: "My second secondary.",
+    completed: true
+}
+
 const taskOneId = new mongoose.Types.ObjectId()
 const taskOne = {
     _id: taskOneId,
     project: projectOne,
-    description: "My first task."
+    description: "My first task.",
+    secondary: [secondaryOne, secondaryTwo]
 }
 
 const taskTwoId = new mongoose.Types.ObjectId()
@@ -48,5 +62,9 @@ module.exports = {
     taskTwo,
     taskOneId,
     taskTwoId,
+    secondaryOne,
+    secondaryTwo,
+    secondaryOneId,
+    secondaryTwoId,
     setupDatabase
 }
