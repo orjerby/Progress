@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux'
-import testReducer from './testReducer'
+import projectReducer from './projectReducer'
 
 // all the reducers
 const reducers = {
-    testReducer
+    projectReducer
 }
 
 // combine all reducers together and export them

@@ -1,4 +1,4 @@
-// types for actions
-// can prevent mistyping
-
-export const TEST = 'TEST'
+export const FETCH_PROJECTS = 'FETCH_PROJECTS'
+export const CREATE_PROJECT = 'CREATE_PROJECT'
+export const UPDATE_PROJECT = 'UPDATE_PROJECT'
+export const DELETE_PROJECT = 'DELETE_PROJECT'

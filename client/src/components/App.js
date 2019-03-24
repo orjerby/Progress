@@ -11,7 +11,7 @@ export default () => {
             {/* we use our history object here */}
             <Router history={history}>
                 <div>
-                    {/* our links */}
+                    {/* header(our links) */}
                     <Link to="/">Home</Link>
                     <Link to="/login">Login</Link>
 
