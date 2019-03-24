@@ -31,7 +31,7 @@ export const updateProject = (id, formValues) => async dispatch => {
 export const deleteProject = id => async dispatch => {
     try {
         const response = await progress.delete(`/projects/${id}`)
-        dispatch({ type: DELETE_PROJECT, payload: response.data })
+        dispatch({ type: DELETE_PROJECT, payload: response.data._id })
     } catch (e) {
         console.log(e.response)
     }
