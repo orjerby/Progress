@@ -1,12 +1,12 @@
 const request = require('supertest')
 const app = require('../src/app')
 const Task = require('../src/models/task')
-const { projectOne, projectTwo, projectOneId, projectTwoId, taskOne, taskOneId, taskTwo, taskTwoId, setupDatabase } = require('./fixtures/db')
+const { projectOneId, taskOne, taskOneId, setupDatabase } = require('./fixtures/db')
 
 beforeEach(setupDatabase)
 
-describe('tasks', () => {
-    describe('create', () => {
+describe('Tasks', () => {
+    describe('Create', () => {
         test('Should not create task without properties', async () => {
             await request(app)
                 .post('/tasks')
@@ -49,7 +49,7 @@ describe('tasks', () => {
         })
     })
 
-    describe('read', () => {
+    describe('Read', () => {
         test('Should not read tasks without projectid query', async () => {
             await request(app)
                 .get(`/tasks`)
@@ -66,7 +66,7 @@ describe('tasks', () => {
         })
     })
 
-    describe('update', () => {
+    describe('Update', () => {
         test('Should not update task without properties', async () => {
             await request(app)
                 .patch(`/tasks/${taskOneId}`)
@@ -123,7 +123,7 @@ describe('tasks', () => {
         })
     })
 
-    describe('delete', () => {
+    describe('Delete', () => {
         test('Should not delete non-exist task', async () => {
             await request(app)
                 .delete('/tasks/111111111111111111111111')

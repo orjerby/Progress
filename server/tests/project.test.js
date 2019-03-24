@@ -5,8 +5,8 @@ const { projectOne, projectTwo, projectOneId, projectTwoId, setupDatabase } = re
 
 beforeEach(setupDatabase)
 
-describe('projects', () => {
-    describe('create', () => {
+describe('Projects', () => {
+    describe('Create', () => {
         test('Should not create project without properties', async () => {
             await request(app)
                 .post('/projects')
@@ -50,7 +50,7 @@ describe('projects', () => {
         })
     })
 
-    describe('read', () => {
+    describe('Read', () => {
         test('Should read all projects', async () => {
             const response = await request(app)
                 .get('/projects')
@@ -60,7 +60,7 @@ describe('projects', () => {
         })
     })
 
-    describe('update', () => {
+    describe('Update', () => {
         test('Should not update project without properties', async () => {
             await request(app)
                 .patch(`/projects/${projectOneId}`)
@@ -124,7 +124,7 @@ describe('projects', () => {
         })
     })
 
-    describe('delete', () => {
+    describe('Delete', () => {
         test('Should not delete non-exist project', async () => {
             await request(app)
                 .delete('/projects/111111111111111111111111')

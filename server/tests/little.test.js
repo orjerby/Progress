@@ -1,12 +1,12 @@
 const request = require('supertest')
 const app = require('../src/app')
 const Task = require('../src/models/task')
-const { projectOne, projectTwo, projectOneId, projectTwoId, taskOne, taskOneId, taskTwo, taskTwoId, secondaryOne, secondaryOneId, secondaryTwo, secondaryTwoId, littleOne, littleOneId, littleTwo, littleTwoId, setupDatabase } = require('./fixtures/db')
+const { secondaryOneId, littleOne, littleOneId, setupDatabase } = require('./fixtures/db')
 
 beforeEach(setupDatabase)
 
-describe('littles', () => {
-    describe('create', () => {
+describe('Littles', () => {
+    describe('Create', () => {
         test('Should not create little without properties', async () => {
             await request(app)
                 .post('/littles')
@@ -87,7 +87,7 @@ describe('littles', () => {
         })
     })
 
-    describe('update', () => {
+    describe('Update', () => {
         test('Should not update little without properties', async () => {
             await request(app)
                 .patch(`/littles/${littleOneId}`)
@@ -204,7 +204,7 @@ describe('littles', () => {
         })
     })
 
-    describe('delete', () => {
+    describe('Delete', () => {
         test('Should not delete non-exist little', async () => {
             await request(app)
                 .delete('/littles/111111111111111111111111')

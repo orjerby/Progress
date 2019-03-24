@@ -1,12 +1,12 @@
 const request = require('supertest')
 const app = require('../src/app')
 const Task = require('../src/models/task')
-const { projectOne, projectTwo, projectOneId, projectTwoId, taskOne, taskOneId, taskTwo, taskTwoId, secondaryOne, secondaryOneId, secondaryTwo, secondaryTwoId, setupDatabase } = require('./fixtures/db')
+const { taskOneId, secondaryOne, secondaryOneId, setupDatabase } = require('./fixtures/db')
 
 beforeEach(setupDatabase)
 
-describe('secondaries', () => {
-    describe('create', () => {
+describe('Secondaries', () => {
+    describe('Create', () => {
         test('Should not create secondary without properties', async () => {
             await request(app)
                 .post('/secondaries')
@@ -82,7 +82,7 @@ describe('secondaries', () => {
         })
     })
 
-    describe('update', () => {
+    describe('Update', () => {
         test('Should not update secondary without properties', async () => {
             await request(app)
                 .patch(`/secondaries/${secondaryOneId}`)
@@ -157,7 +157,7 @@ describe('secondaries', () => {
         })
     })
 
-    describe('delete', () => {
+    describe('Delete', () => {
         test('Should not delete non-exist secondary', async () => {
             await request(app)
                 .delete('/secondaries/111111111111111111111111')
