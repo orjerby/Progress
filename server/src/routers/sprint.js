@@ -1,12 +1,12 @@
 const express = require('express')
-const Task = require('../models/task')
+const Sprint = require('../models/sprint')
 
 const router = express.Router()
 
-router.post('/tasks', async (req, res) => {
-    const task = req.body
+router.post('/sprints', async (req, res) => {
+    const sprint = req.body
 
-    const updates = Object.keys(task)
+    const updates = Object.keys(sprint)
     const allowedUpdates = ['project', 'description']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
@@ -15,16 +15,16 @@ router.post('/tasks', async (req, res) => {
     }
 
     try {
-        let task = new Task(req.body)
-        task = await task.save()
-        res.status(201).send(task)
+        let sprint = new Sprint(req.body)
+        sprint = await sprint.save()
+        res.status(201).send(sprint)
     } catch (e) {
         res.status(400).send(e)
     }
 })
 
-// /tasks?projectid=5c953c618b2c0b16906688b8
-router.get('/tasks', async (req, res) => {
+// /sprints?projectid=5c953c618b2c0b16906688b8
+router.get('/sprints', async (req, res) => {
     const _id = req.query.projectid
 
     if (!_id) {
@@ -32,19 +32,19 @@ router.get('/tasks', async (req, res) => {
     }
 
     try {
-        const task = await Task.find({ project: _id })
-        res.send(task)
+        const sprint = await Sprint.find({ project: _id })
+        res.send(sprint)
     } catch (e) {
         res.status(400).send(e)
     }
 })
 
-router.patch('/tasks/:_id', async (req, res) => {
-    const _id = req.params._id // id of the task we want to update
-    const task = req.body // the updated task
+router.patch('/sprints/:_id', async (req, res) => {
+    const _id = req.params._id // id of the sprint we want to update
+    const sprint = req.body // the updated sprint
 
-    const updates = Object.keys(task)
-    const allowedUpdates = ['description', 'completed']
+    const updates = Object.keys(sprint)
+    const allowedUpdates = ['description']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -54,39 +54,39 @@ router.patch('/tasks/:_id', async (req, res) => {
     const updatesObj = {}
     // this is for the $set next. set the property to the new one
     // example: "description: myDescription"
-    updates.forEach((update) => updatesObj[update] = task[update])
+    updates.forEach((update) => updatesObj[update] = sprint[update])
 
     if (Object.keys(updatesObj).length === 0) { // must include this 'if' unless we want to get another error from the findOneAndUpdate function
         return res.status(400).send('you must include at least one property to update')
     }
 
     try {
-        const task = await Task.findOneAndUpdate({ _id }, {
+        const sprint = await Sprint.findOneAndUpdate({ _id }, {
             $set: updatesObj
         }, {
                 new: true, runValidators: true
             })
 
-        if (!task) {
-            return res.status(404).send("couldn't find task")
+        if (!sprint) {
+            return res.status(404).send("couldn't find sprint")
         }
 
-        res.send(task)
+        res.send(sprint)
     } catch (e) {
         res.status(400).send(e)
     }
 })
 
-router.delete('/tasks/:_id', async (req, res) => {
-    const _id = req.params._id // id of the task we want to delete
+router.delete('/sprints/:_id', async (req, res) => {
+    const _id = req.params._id // id of the sprint we want to delete
 
     try {
-        const task = await Task.findOneAndDelete({ _id })
-        if (!task) {
-            return res.status(404).send("couldn't find task")
+        const sprint = await Sprint.findOneAndDelete({ _id })
+        if (!sprint) {
+            return res.status(404).send("couldn't find sprint")
         }
 
-        res.send(task)
+        res.send(sprint)
     } catch (e) {
         res.status(400).send(e)
     }

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Project = require('./project')
 
-const taskSchema = new mongoose.Schema({
+const backlogSchema = new mongoose.Schema({
     project: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -18,38 +18,43 @@ const taskSchema = new mongoose.Schema({
             }
         }
     },
-    description: {
-        type: String,
-        trim: true,
-        required: true
-    },
-    secondary: [
+    issue: [
         {
             description: {
                 type: String,
                 trim: true,
                 required: true
             },
-            completed: {
-                type: Boolean,
-                default: false
-            },
             createdAt: {
                 type: Date,
                 default: new Date().getTime()
             },
-            little: [
+            updatedAt: {
+                type: Date,
+                default: new Date().getTime()
+            },
+            todo: [
                 {
                     description: {
                         type: String,
                         trim: true,
                         required: true
                     },
-                    completed: {
-                        type: Boolean,
-                        default: false
+                    status: {
+                        type: String,
+                        enum: ['undone', 'progress', 'done'],
+                        default: 'undone'
+                    },
+                    priority: {
+                        type: String,
+                        enum: ['low', 'medium', 'high'],
+                        default: 'medium'
                     },
                     createdAt: {
+                        type: Date,
+                        default: new Date().getTime()
+                    },
+                    updatedAt: {
                         type: Date,
                         default: new Date().getTime()
                     },
@@ -61,6 +66,6 @@ const taskSchema = new mongoose.Schema({
         timestamps: true
     })
 
-const Task = mongoose.model('Task', taskSchema)
+const Backlog = mongoose.model('Backlog', backlogSchema)
 
-module.exports = Task
+module.exports = Backlog

@@ -1,10 +1,10 @@
 const express = require('express')
 require('./db/mongoose')
 const path = require('path')
-const taskRouter = require('./routers/task')
+const sprintRouter = require('./routers/sprint')
 const projectRouter = require('./routers/project')
-const secondaryRouter = require('./routers/secondary')
-const littleRouter = require('./routers/little')
+const issueRouter = require('./routers/issue')
+const todoRouter = require('./routers/todo')
 
 const app = express()
 
@@ -15,9 +15,9 @@ app.use(express.json())
 app.use(express.static(path.join(__dirname, '..', '..', 'client', 'build')))
 
 app.use(projectRouter)
-app.use(taskRouter)
-app.use(secondaryRouter)
-app.use(littleRouter)
+app.use(sprintRouter)
+app.use(issueRouter)
+app.use(todoRouter)
 
 // if the user try to enter the url, express will take him to our client(react)
 app.get('*', (req, res) => {

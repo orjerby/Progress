@@ -14,7 +14,6 @@ export default () => {
                     {/* header(our links) */}
                     <Link to="/">Home</Link>
                     <Link to="/login">Login</Link>
-                    s
 
                     {/* our routes. Switch only render the first route that matches the url */}
                     <Switch>

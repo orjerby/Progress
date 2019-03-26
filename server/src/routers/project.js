@@ -1,6 +1,7 @@
 const express = require('express')
 const Project = require('../models/project')
-const Task = require('../models/task')
+const Sprint = require('../models/sprint')
+const Backlog = require('../models/backlog')
 
 const router = express.Router()
 
@@ -18,6 +19,10 @@ router.post('/projects', async (req, res) => {
     try {
         const project = new Project(req.body)
         await project.save()
+        const backlog = new Backlog({
+            project: project._id
+        })
+        await backlog.save()
         res.status(201).send(project)
     } catch (e) {
         res.status(400).send(e)
@@ -77,10 +82,12 @@ router.delete('/projects/:_id', async (req, res) => {
     try {
         const project = await Project.findOneAndDelete({ _id })
         if (!project) {
+            await session.endSession()
             return res.status(404).send("couldn't find project")
         }
 
-        await Task.deleteMany({ project: _id })
+        await Backlog.deleteMany({ project: _id })
+        await Sprint.deleteMany({ project: _id })
         res.send(project)
     } catch (e) {
         res.status(400).send(e)
