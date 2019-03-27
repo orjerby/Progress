@@ -1,10 +1,11 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Container, Row, Col } from 'react-bootstrap'
 
 export default () => {
     return (
         <Container fluid>
-            <Row>
+            {/* <Row>
                 <Col style={{backgroundColor:'gray'}}>1 of 2</Col>
                 <Col style={{backgroundColor:'lightGray'}}>2 of 2</Col>
             </Row>
@@ -12,7 +13,9 @@ export default () => {
                 <Col style={{backgroundColor:'blue'}}>1 of 3</Col>
                 <Col style={{backgroundColor:'green'}}>2 of 3</Col>
                 <Col style={{backgroundColor:'red'}}>3 of 3</Col>
-            </Row>
+            </Row> */}
+
+            <Link to="/home">Enter</Link>
         </Container>
     )
 }

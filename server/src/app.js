@@ -5,6 +5,7 @@ const sprintRouter = require('./routers/sprint')
 const projectRouter = require('./routers/project')
 const issueRouter = require('./routers/issue')
 const todoRouter = require('./routers/todo')
+const backlogRouter = require('./routers/backlog')
 
 const app = express()
 
@@ -18,6 +19,7 @@ app.use(projectRouter)
 app.use(sprintRouter)
 app.use(issueRouter)
 app.use(todoRouter)
+app.use(backlogRouter)
 
 // if the user try to enter the url, express will take him to our client(react)
 app.get('*', (req, res) => {
