@@ -8,23 +8,100 @@ const router = express.Router()
 
 // POST /issues?transferto=sprint
 // POST /issues?transferto=backlog
+// POST /issues
 router.post('/issues', async (req, res) => {
     const sprintId = req.body.sprint
     const backlogId = req.body.backlog
     const issue = req.body.issue
     const { transferto } = req.query
 
-    if (transferto) {
-        if (transferto !== 'sprint' && transferto !== 'backlog') {
+    if (transferto) { // transfer from backlog to sprint or from sprint to backlog
+
+        // --- validate the data input for transferto query
+        if (transferto !== 'sprint' && transferto !== 'backlog')
             return res.status(400).send("the transferto query must have value of 'sprint' or 'backlog'")
+        if (!issue || typeof issue !== 'string' || (sprintId && backlogId) || (!sprintId && !backlogId))
+            return res.status(400).send("you must provide issue property(string) and sprint/backlog property")
+        // ---
+
+        let result // data that come back from mongo as an answer
+        const session = await mongoose.startSession() // start an session for transaction
+        try {
+            await session.startTransaction() // we use transaction because we do combintion of commands to mongodb
+            let deletedIssue // the deleted issue
+            let newIssue  // the new issue
+            let _id // new _id for the new issue
+            if (transferto === 'sprint') { // transfer from backlog to sprint
+                // --- delete the issue from backlog and get the whole document back (with the deleted issue inside)
+                result = await Backlog.findOneAndUpdate({ "issue._id": issue }, { $pull: { "issue": { _id: issue } } }).session(session)
+                if (!result) {
+                    await session.abortTransaction()
+                    return res.status(404).send("couldn't find issue")
+                }
+                // ---
+
+                // --- find the deleted issue
+                result.issue.forEach(i => {
+                    if (i._id.toString() === issue) {
+                        return deletedIssue = i
+                    }
+                })
+                // ---
+
+                // --- push the deleted issue to sprint (with new _id for the issue that we keep for later) and get the whole document back
+                _id = new mongoose.Types.ObjectId()
+                result = await Sprint.findOneAndUpdate({ _id: sprintId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'updatedAt', 'todo']), _id } } }, { new: true, runValidators: true }).session(session)
+                if (!result) {
+                    await session.abortTransaction()
+                    return res.status(404).send("couldn't find sprint")
+                }
+                // ---
+            }
+            else if (transferto === 'backlog') { // like "transferto === 'sprint'" but for backlog
+                result = await Sprint.findOneAndUpdate({ "issue._id": issue }, { $pull: { "issue": { _id: issue } } }).session(session)
+                if (!result) {
+                    await session.abortTransaction()
+                    return res.status(404).send("couldn't find issue")
+                }
+
+                result.issue.forEach(i => {
+                    if (i._id.toString() === issue) {
+                        return deletedIssue = i
+                    }
+                })
+
+                _id = new mongoose.Types.ObjectId()
+                result = await Backlog.findOneAndUpdate({ _id: backlogId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'updatedAt', 'todo']), _id } } }, { new: true, runValidators: true }).session(session)
+                if (!result) {
+                    await session.abortTransaction()
+                    return res.status(404).send("couldn't find backlog")
+                }
+            }
+
+            // --- find the new issue we just added to the collection(sprint or backlog) and return it
+            result.issue.forEach(i => {
+                if (i._id.toString() === _id.toString()) {
+                    return newIssue = i
+                }
+            })
+            if (newIssue) {
+                await session.commitTransaction() // everything worked! commit the transaction
+                return res.status(201).send(newIssue)
+            }
+            // ---
+
+            await session.abortTransaction() // it didn't work, abort the transaction
+        }
+        catch (e) {
+            res.status(400).send(e)
+        }
+        finally {
+            await session.endSession() // close the session for transaction
         }
 
-        if (!issue || typeof issue !== 'string' || (sprintId && backlogId) || (!sprintId && !backlogId)) {
-            return res.status(400).send("invalid data. see instructions")
-        }
-    } else {
+    } else { // create issue for backlog
         if (!backlogId || !issue || typeof issue !== 'object') {
-            return res.status(400).send("invalid data. see instructions")
+            return res.status(400).send("you must provide backlog property and issue object")
         }
 
         const updates = Object.keys(issue)
@@ -34,12 +111,9 @@ router.post('/issues', async (req, res) => {
         if (!isValidOperation) {
             return res.status(400).send({ error: 'Invalid properties!' })
         }
-    }
 
-    issue._id = new mongoose.Types.ObjectId()
-    try {
-        let result
-        if (!transferto) { // add to backlog
+        issue._id = new mongoose.Types.ObjectId() // new _id for the new issue so we can keep track of it for later
+        try {
             result = await Backlog.findOneAndUpdate({ _id: backlogId }, { $push: { issue } }, { new: true, runValidators: true })
             if (!result) {
                 return res.status(404).send("couldn't find backlog")
@@ -50,39 +124,9 @@ router.post('/issues', async (req, res) => {
                     return res.status(201).send(i)
                 }
             })
+        } catch (e) {
+            res.status(400).send(e)
         }
-        else if (transferto === 'sprint') {
-
-            let deletedIssue
-            result = await Backlog.findOneAndUpdate({ "issue._id": issue }, { $pull: { "issue": { _id: issue } } })
-
-            if (!result) {
-                return res.status(404).send("couldn't find issue")
-            }
-
-            // find the deleted issue sprint in the document and send only it
-            result.issue.forEach(i => {
-                if (i._id.toString() === issue) { // the issue here is _id
-                    return deletedIssue = i
-                }
-            })
-            _id = new mongoose.Types.ObjectId() // new _id for the issue in the sprint collection
-            result = await Sprint.findOneAndUpdate({ _id: sprintId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'updatedAt', 'todo']), _id } } }, { new: true, runValidators: true })
-
-            if (!result) {
-                return res.status(404).send("couldn't find sprint")
-            }
-            
-            result.issue.forEach(i => {
-                if (i._id.toString() === _id.toString()) { // the _id of the issue in the sprint collection we kept. find it
-                    return res.status(201).send(i)
-                }
-            })
-        }
-
-
-    } catch (e) {
-        res.status(400).send(e)
     }
 })
 

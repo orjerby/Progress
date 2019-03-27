@@ -1,4 +1,5 @@
 const express = require('express')
+const mongoose = require('mongoose')
 const Project = require('../models/project')
 const Sprint = require('../models/sprint')
 const Backlog = require('../models/backlog')
@@ -16,16 +17,22 @@ router.post('/projects', async (req, res) => {
         return res.status(400).send({ error: 'Invalid properties!' })
     }
 
+    const session = await mongoose.startSession() // start an session for transaction
     try {
+        session.startTransaction()
         const project = new Project(req.body)
         await project.save()
         const backlog = new Backlog({
             project: project._id
         })
         await backlog.save()
+        await session.commitTransaction()
         res.status(201).send(project)
     } catch (e) {
+        await session.abortTransaction()
         res.status(400).send(e)
+    }finally{
+        await session.endSession() // close the session for transaction
     }
 })
 
@@ -79,18 +86,24 @@ router.patch('/projects/:_id', async (req, res) => {
 router.delete('/projects/:_id', async (req, res) => {
     const _id = req.params._id // id of the project we want to delete
 
+    const session = await mongoose.startSession() // start an session for transaction
     try {
+        session.startTransaction() // we use transaction because we do combintion of commands to mongodb
         const project = await Project.findOneAndDelete({ _id })
         if (!project) {
-            await session.endSession()
+            await session.abortTransaction() // it didn't work, abort the transaction
             return res.status(404).send("couldn't find project")
         }
 
         await Backlog.deleteMany({ project: _id })
         await Sprint.deleteMany({ project: _id })
+        await session.commitTransaction() // everything worked! commit the transaction
         res.send(project)
     } catch (e) {
+        await session.abortTransaction()
         res.status(400).send(e)
+    } finally{
+        await session.endSession() // close the session for transaction
     }
 })
 
