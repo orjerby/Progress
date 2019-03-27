@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Project = require('../../src/models/project')
-const Task = require('../../src/models/task')
+const Sprint = require('../../src/models/sprint')
+const Backlog = require('../../src/models/backlog')
 
 const projectOneId = new mongoose.Types.ObjectId()
 const projectOne = {
@@ -16,54 +17,69 @@ const projectTwo = {
     description: 'My second project'
 }
 
-const littleOneId = new mongoose.Types.ObjectId()
-const littleOne = {
-    _id: littleOneId,
-    description: "My first little."
+const todoOneId = new mongoose.Types.ObjectId()
+const todoOne = {
+    _id: todoOneId,
+    description: "My first todo."
 }
 
-const littleTwoId = new mongoose.Types.ObjectId()
-const littleTwo = {
-    _id: littleTwoId,
-    description: "My second little."
+const todoTwoId = new mongoose.Types.ObjectId()
+const todoTwo = {
+    _id: todoTwoId,
+    description: "My second todo."
 }
 
-const secondaryOneId = new mongoose.Types.ObjectId()
-const secondaryOne = {
-    _id: secondaryOneId,
-    description: "My first secondary.",
-    little: [littleOne, littleTwo]
+const issueOneId = new mongoose.Types.ObjectId()
+const issueOne = {
+    _id: issueOneId,
+    description: "My first issue.",
+    todo: [todoOne, todoTwo]
 }
 
-const secondaryTwoId = new mongoose.Types.ObjectId()
-const secondaryTwo = {
-    _id: secondaryTwoId,
-    description: "My second secondary.",
-    completed: true
+const issueTwoId = new mongoose.Types.ObjectId()
+const issueTwo = {
+    _id: issueTwoId,
+    description: "My second issue."
 }
 
-const taskOneId = new mongoose.Types.ObjectId()
-const taskOne = {
-    _id: taskOneId,
+const sprintOneId = new mongoose.Types.ObjectId()
+const sprintOne = {
+    _id: sprintOneId,
     project: projectOne,
-    description: "My first task.",
-    secondary: [secondaryOne, secondaryTwo]
+    description: "My first sprint.",
+    issue: [issueOne]
 }
 
-const taskTwoId = new mongoose.Types.ObjectId()
-const taskTwo = {
-    _id: taskTwoId,
+const sprintTwoId = new mongoose.Types.ObjectId()
+const sprintTwo = {
+    _id: sprintTwoId,
     project: projectOne,
-    description: "My second task."
+    description: "My second sprint."
+}
+
+const backlogOneId = new mongoose.Types.ObjectId()
+const backlogOne = {
+    _id: backlogOneId,
+    project: projectOne,
+    issue: [issueTwo]
+}
+
+const backlogTwoId = new mongoose.Types.ObjectId()
+const backlogTwo = {
+    _id: backlogTwoId,
+    project: projectOne
 }
 
 const setupDatabase = async () => {
+    await Backlog.deleteMany()
     await Project.deleteMany()
-    await Task.deleteMany()
+    await Sprint.deleteMany()
     await new Project(projectOne).save()
     await new Project(projectTwo).save()
-    await new Task(taskOne).save()
-    await new Task(taskTwo).save()
+    await new Backlog(backlogOne).save()
+    await new Backlog(backlogTwo).save()
+    await new Sprint(sprintOne).save()
+    await new Sprint(sprintTwo).save()
 }
 
 module.exports = {
@@ -71,17 +87,21 @@ module.exports = {
     projectTwo,
     projectOneId,
     projectTwoId,
-    taskOne,
-    taskTwo,
-    taskOneId,
-    taskTwoId,
-    secondaryOne,
-    secondaryTwo,
-    secondaryOneId,
-    secondaryTwoId,
-    littleOne,
-    littleTwo,
-    littleOneId,
-    littleTwoId,
+    sprintOne,
+    sprintTwo,
+    sprintOneId,
+    sprintTwoId,
+    issueOne,
+    issueTwo,
+    issueOneId,
+    issueTwoId,
+    todoOne,
+    todoTwo,
+    todoOneId,
+    todoTwoId,
+    backlogOne,
+    backlogOneId,
+    backlogTwo,
+    backlogTwoId,
     setupDatabase
 }

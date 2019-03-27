@@ -1,6 +1,8 @@
 const request = require('supertest')
 const app = require('../src/app')
 const Project = require('../src/models/project')
+const Backlog = require('../src/models/backlog')
+const Sprint = require('../src/models/sprint')
 const { projectOne, projectOneId, setupDatabase } = require('./fixtures/db')
 
 beforeEach(setupDatabase)
@@ -47,6 +49,8 @@ describe('Projects', () => {
             const project = await Project.findById(response.body._id)
             expect(project).not.toBeNull()
             expect(project.name).toEqual("or's project")
+            const backlog = await Backlog.findOne({project: response.body._id})
+            expect(backlog).not.toBeNull()
         })
     })
 
@@ -139,6 +143,10 @@ describe('Projects', () => {
                 .expect(200)
             const project = await Project.findById(projectOneId)
             expect(project).toBeNull()
+            const backlog = await Backlog.findOne({project: projectOneId})
+            expect(backlog).toBeNull()
+            const sprint = await Sprint.findOne({project: projectOneId})
+            expect(sprint).toBeNull()
         })
     })
 })
