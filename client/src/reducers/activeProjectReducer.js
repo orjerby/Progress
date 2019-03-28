@@ -1,13 +1,11 @@
-import _ from 'lodash'
+import { SET_ACTIVE_PROJECT, SET_BACKLOG } from '../actions/types'
 
-import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT } from '../actions/types'
-
-const DEFAULT_STATE = null
-// object
-export default (state = DEFAULT_STATE, action) => {
+export default (state = null, action) => {
     switch (action.type) {
         case SET_ACTIVE_PROJECT:
             return action.payload
+        case SET_BACKLOG:
+            return { ...state, backlog: action.payload }
         default:
             return state
     }

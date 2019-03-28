@@ -14,37 +14,6 @@ class Dashboard extends React.Component {
 
     componentDidMount = () => {
         this.props.fetchProjects()
-
-        let p = [
-            {
-                _id: "5c9b5a72b9a2fb22045a39fb",
-                issue: [
-                    {
-                        _id: '123',
-                        description: "yoo1"
-                    },
-                    {
-                        _id: '456',
-                        description: "yoo2"
-                    },
-                    {
-                        _id: '789',
-                        description: "yoo2"
-                    }
-                ]
-            }
-        ]
-
-        for(let i =0;i<p.length;i++){
-            for(let j=0;j<p[i].issue.length;j++){
-                if(p[i].issue[j]._id==='123'){
-                    delete p[i].issue[j]
-                }
-            }
-        }
-
-        console.log(p)
-        //console.log(z)
     }
 
     createProject = () => {
@@ -98,8 +67,29 @@ class Dashboard extends React.Component {
         this.props.fetchSprints(project._id)
     }
 
+    renderSprints = () => {
+        const { activeProject, sprints, sprintIssues } = this.props
+        let result = []
+
+        sprints.forEach(s => {
+            result.push(<h3 key={s._id}>{s.description}</h3>)
+            return sprintIssues.forEach(i => {
+                if (s._id === i.sprint) {
+                    result.push(
+                        <div key={i._id}>
+                            <span>{i.description}</span>   <FaArrowAltCircleDown onClick={() => this.props.transferToBacklog(i._id, activeProject.backlog)} />
+                        </div>
+                    )
+                }
+            })
+        })
+
+        return result
+
+    }
+
     render() {
-        const { projects, activeProject, backlogs, sprints } = this.props
+        const { projects, activeProject, backlogIssues, sprints } = this.props
         return (
             <div>
 
@@ -112,22 +102,16 @@ class Dashboard extends React.Component {
 
                 <hr />
 
-                <h2>Sprints</h2>
 
-                {
-                    sprints && sprints.map(s => {
-                        return s.issue.map(i => { return <div key={i._id}>{s.description} {i.description}<span><FaArrowAltCircleDown onClick={() => this.props.transferToBacklog(i._id, backlogs._id)} /></span></div> }
-                        )
-                    })
-                }
+                <h2>Sprints</h2>
+                {this.renderSprints()}
 
 
 
                 <hr />
 
                 <h2>Backlogs</h2>
-
-                {backlogs && backlogs.issue.map(i => <div key={i._id}><span>{i.description}</span>   <FaArrowAltCircleUp onClick={() => this.props.transferToSprint(i._id, sprints[0]._id)} /></div>)}
+                {backlogIssues && backlogIssues.map(i => <div key={i._id}><span>{i.description}</span>   <FaArrowAltCircleUp onClick={() => this.props.transferToSprint(i._id, sprints[0]._id)} /></div>)}
 
                 {/* {this.renderList()} */}
 
@@ -140,12 +124,13 @@ class Dashboard extends React.Component {
 }
 
 // get the data of whatever reducer you want
-function mapStateToProps({ projectReducer, activeProjectReducer, backlogReducer, sprintReducer }) {
+function mapStateToProps({ projectReducer, activeProjectReducer, backlogIssueReducer, sprintReducer, sprintIssueReducer }) {
     return {
-        projects: Object.values(projectReducer),
+        projects: projectReducer,
         activeProject: activeProjectReducer,
-        backlogs: backlogReducer,
-        sprints: sprintReducer
+        backlogIssues: backlogIssueReducer,
+        sprints: sprintReducer,
+        sprintIssues: sprintIssueReducer
     }
 }
 

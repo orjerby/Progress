@@ -1,4 +1,5 @@
-import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, FETCH_BACKLOGS, FETCH_SPRINTS, TRANSFTER_TO_SPRINT, TRANSFTER_TO_BACKLOG } from './types'
+import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFTER_TO_SPRINT, TRANSFTER_TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG } from './types'
+import _ from 'lodash'
 import progress from '../apis/progress'
 
 export const createProject = formValues => async dispatch => {
@@ -47,7 +48,20 @@ export const setActiveProject = (project) => {
 export const fetchBacklogs = id => async dispatch => {
     try {
         const response = await progress.get(`/backlogs?projectid=${id}`)
-        dispatch({ type: FETCH_BACKLOGS, payload: response.data })
+        const data = response.data
+
+        let issues = []
+        let todos = []
+        data.issue.forEach(i => {
+            issues.push({ ..._.omit(i, 'todo') })
+            i.todo.forEach(t => {
+                todos.push({ ...t, issue: i._id })
+            });
+        });
+
+        dispatch({ type: SET_BACKLOG_ISSUES, payload: issues })
+        dispatch({ type: SET_TODOS, payload: todos })
+        dispatch({ type: SET_BACKLOG, payload: data._id })
     } catch (e) {
         console.log(e.response)
     }
@@ -56,25 +70,42 @@ export const fetchBacklogs = id => async dispatch => {
 export const fetchSprints = id => async dispatch => {
     try {
         const response = await progress.get(`/sprints?projectid=${id}`)
-        dispatch({ type: FETCH_SPRINTS, payload: response.data })
+        const data = response.data
+
+        let sprints = []
+        let issues = []
+        let todos = []
+        data.forEach(s => {
+            sprints.push(_.omit(s, 'issue'))
+            s.issue.forEach(i => {
+                issues.push({ ..._.omit(i, 'todo'), sprint: s._id })
+                i.todo.forEach(t => {
+                    todos.push({ ...t, issue: i._id })
+                });
+            });
+        });
+
+        dispatch({ type: SET_SPRINTS, payload: sprints })
+        dispatch({ type: SET_SPRINT_ISSUES, payload: issues })
+        dispatch({ type: SET_TODOS, payload: todos })
     } catch (e) {
         console.log(e.response)
     }
 }
 
-export const transferToSprint = (id, sprintId) => async dispatch => {
+export const transferToSprint = (issueId, sprintId) => async dispatch => {
     try {
-        const response = await progress.post('/issues?transferto=sprint', { sprint: sprintId, issue: id })
-        dispatch({ type: TRANSFTER_TO_SPRINT, payload: { data: response.data, id } })
+        const response = await progress.post('/issues?transferto=sprint', { sprint: sprintId, issue: issueId })
+        dispatch({ type: TRANSFTER_TO_SPRINT, payload: { data: response.data, issueId, sprintId } })
     } catch (e) {
         console.log(e.response)
     }
 }
 
-export const transferToBacklog = (id, backlogId) => async dispatch => {
+export const transferToBacklog = (issueId, backlogId) => async dispatch => {
     try {
-        const response = await progress.post('/issues?transferto=backlog', { backlog: backlogId, issue: id })
-        dispatch({ type: TRANSFTER_TO_BACKLOG, payload: { data: response.data, id } })
+        const response = await progress.post('/issues?transferto=backlog', { backlog: backlogId, issue: issueId })
+        dispatch({ type: TRANSFTER_TO_BACKLOG, payload: { data: response.data, issueId } })
     } catch (e) {
         console.log(e.response)
     }
