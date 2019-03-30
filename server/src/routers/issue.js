@@ -48,8 +48,9 @@ router.post('/issues', async (req, res) => {
                 })
                 // ---
 
-                // --- push the deleted issue to sprint and get the whole document back
-                result = await Sprint.findOneAndUpdate({ _id: sprintId }, { $push: { issue: deletedIssue } }, { new: true, runValidators: true }).session(session)
+                // --- push the deleted issue to sprint (with new _id for the issue that we keep for later) and get the whole document back
+                _id = new mongoose.Types.ObjectId()
+                result = await Sprint.findOneAndUpdate({ _id: sprintId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'updatedAt', 'todo']), _id } } }, { new: true, runValidators: true }).session(session)
                 if (!result) {
                     await session.abortTransaction()
                     return res.status(404).send("couldn't find sprint")
@@ -69,7 +70,8 @@ router.post('/issues', async (req, res) => {
                     }
                 })
 
-                result = await Backlog.findOneAndUpdate({ _id: backlogId }, { $push: { issue: deletedIssue } }, { new: true, runValidators: true }).session(session)
+                _id = new mongoose.Types.ObjectId()
+                result = await Backlog.findOneAndUpdate({ _id: backlogId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'updatedAt', 'todo']), _id } } }, { new: true, runValidators: true }).session(session)
                 if (!result) {
                     await session.abortTransaction()
                     return res.status(404).send("couldn't find backlog")
@@ -78,7 +80,7 @@ router.post('/issues', async (req, res) => {
 
             // --- find the new issue we just added to the collection(sprint or backlog) and return it
             result.issue.forEach(i => {
-                if (i._id.toString() === deletedIssue._id.toString()) {
+                if (i._id.toString() === _id.toString()) {
                     return newIssue = i
                 }
             })

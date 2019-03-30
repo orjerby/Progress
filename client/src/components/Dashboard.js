@@ -4,10 +4,14 @@ import { Dropdown } from 'react-bootstrap'
 import { FaArrowAltCircleUp, FaArrowAltCircleDown } from "react-icons/fa"
 
 import Backlog from './Backlog'
-import Sprint from './Sprint'
+import SprintList from './SprintList'
 import { fetchProjects, createProject, deleteProject, setActiveProject, fetchBacklogs, fetchSprints, transferIssueToSprint, transferIssueToBacklog } from '../actions'
 
 class Dashboard extends React.Component {
+
+    state = {
+        draggedIssueId: undefined
+    }
 
     componentDidMount = () => {
         this.props.fetchProjects()
@@ -37,12 +41,17 @@ class Dashboard extends React.Component {
                 {this.renderDropdown()}
 
                 <hr />
+                {
+                    this.props.activeProject && (
+                        <div>
+                            <SprintList issueId={this.state.draggedIssueId} handleDragged={(issueId) => this.setState({ draggedIssueId: issueId })} />
 
-                <Sprint/>
+                            <hr />
 
-                <hr />
-
-                <Backlog/>
+                            <Backlog handleDragged={(issueId) => this.setState({ draggedIssueId: issueId })} handleDrop={() => this.props.transferIssueToBacklog(this.state.draggedIssueId, this.props.activeProject.backlog)} />
+                        </div>
+                    )
+                }
             </div>
         )
     }
