@@ -1,4 +1,4 @@
-import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFTER_TO_SPRINT, TRANSFTER_TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG } from './types'
+import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFER_ISSUE_TO_SPRINT, TRANSFTER_ISSUE__TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG } from './types'
 import _ from 'lodash'
 import progress from '../apis/progress'
 
@@ -9,7 +9,7 @@ export const createProject = formValues => async dispatch => {
     } catch (e) {
         console.log(e.response)
     }
-};
+}
 
 export const fetchProjects = () => async dispatch => {
     try {
@@ -18,7 +18,7 @@ export const fetchProjects = () => async dispatch => {
     } catch (e) {
         console.log(e.response)
     }
-};
+}
 
 export const updateProject = (id, formValues) => async dispatch => {
     try {
@@ -27,7 +27,7 @@ export const updateProject = (id, formValues) => async dispatch => {
     } catch (e) {
         console.log(e.response)
     }
-};
+}
 
 export const deleteProject = id => async dispatch => {
     try {
@@ -36,20 +36,21 @@ export const deleteProject = id => async dispatch => {
     } catch (e) {
         console.log(e.response)
     }
-};
+}
 
-export const setActiveProject = (project) => {
+export const setActiveProject = project => {
     return {
         type: SET_ACTIVE_PROJECT,
         payload: project
     }
 }
 
-export const fetchBacklogs = id => async dispatch => {
+export const fetchBacklogs = projectId => async dispatch => {
     try {
-        const response = await progress.get(`/backlogs?projectid=${id}`)
+        const response = await progress.get(`/backlogs?projectid=${projectId}`)
         const data = response.data
 
+        // making the data for the reducers ready
         let issues = []
         let todos = []
         data.issue.forEach(i => {
@@ -67,11 +68,12 @@ export const fetchBacklogs = id => async dispatch => {
     }
 }
 
-export const fetchSprints = id => async dispatch => {
+export const fetchSprints = projectId => async dispatch => {
     try {
-        const response = await progress.get(`/sprints?projectid=${id}`)
+        const response = await progress.get(`/sprints?projectid=${projectId}`)
         const data = response.data
 
+        // making the data for the reducers ready
         let sprints = []
         let issues = []
         let todos = []
@@ -93,19 +95,21 @@ export const fetchSprints = id => async dispatch => {
     }
 }
 
-export const transferToSprint = (issueId, sprintId) => async dispatch => {
+export const transferIssueToSprint = (issueId, sprintId) => async dispatch => {
     try {
         const response = await progress.post('/issues?transferto=sprint', { sprint: sprintId, issue: issueId })
-        dispatch({ type: TRANSFTER_TO_SPRINT, payload: { data: response.data, issueId, sprintId } })
+        const transferedIssue = _.omit(response.data, 'todo') // remove the todo array from the issue array to adjst it for the reducer
+        dispatch({ type: TRANSFER_ISSUE_TO_SPRINT, payload: { transferedIssue, issueId, sprintId } })
     } catch (e) {
         console.log(e.response)
     }
 }
 
-export const transferToBacklog = (issueId, backlogId) => async dispatch => {
+export const transferIssueToBacklog = (issueId, backlogId) => async dispatch => {
     try {
         const response = await progress.post('/issues?transferto=backlog', { backlog: backlogId, issue: issueId })
-        dispatch({ type: TRANSFTER_TO_BACKLOG, payload: { data: response.data, issueId } })
+        const transferedIssue = _.omit(response.data, 'todo') // remove the todo array from the issue array to adjst it for the reducer
+        dispatch({ type: TRANSFTER_ISSUE__TO_BACKLOG, payload: { transferedIssue, issueId } })
     } catch (e) {
         console.log(e.response)
     }

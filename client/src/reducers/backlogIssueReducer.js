@@ -1,14 +1,13 @@
-import _ from 'lodash'
-import { SET_BACKLOG_ISSUES, TRANSFTER_TO_BACKLOG, TRANSFTER_TO_SPRINT } from '../actions/types'
+import { SET_BACKLOG_ISSUES, TRANSFTER_ISSUE__TO_BACKLOG, TRANSFER_ISSUE_TO_SPRINT } from '../actions/types'
 
 export default (state = [], action) => {
     switch (action.type) {
         case SET_BACKLOG_ISSUES:
             return action.payload
-        case TRANSFTER_TO_SPRINT:
+        case TRANSFER_ISSUE_TO_SPRINT:
             return state.filter(s => s._id !== action.payload.issueId)
-        case TRANSFTER_TO_BACKLOG:
-            return [...state, _.omit(action.payload.data, 'todo')]
+        case TRANSFTER_ISSUE__TO_BACKLOG:
+            return [...state, action.payload.transferedIssue]
         default:
             return state
     }
