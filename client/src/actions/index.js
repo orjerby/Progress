@@ -1,4 +1,4 @@
-import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFER_ISSUE_TO_SPRINT, TRANSFTER_ISSUE__TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG, SET_DRAGGED, UNSET_DRAGGED } from './types'
+import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFER_ISSUE_TO_SPRINT, TRANSFTER_ISSUE_TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG, SET_DRAGGED, UNSET_DRAGGED, UPDATE_ID_OF_TRANSFERED_ISSUE, ROLLBACK_TRANSFER_ISSUE, SET_FETCHING, UNSET_FETCHING } from './types'
 import _ from 'lodash'
 import progress from '../apis/progress'
 
@@ -95,23 +95,55 @@ export const fetchSprints = projectId => async dispatch => {
     }
 }
 
-export const transferIssueToSprint = (issueId, sprintId) => async dispatch => {
+// Transfer issue from backlog to sprint
+// First dispatch action to add/remove the issue
+// Then send API req to transfer and get back the transfered issue with new _id
+// Then dispatch action to change just the _id we transfered before
+// In case of error dispatch action to rollback the transfer
+export const transferIssueToSprint = (issue, sprintId) => async (dispatch, getState) => {
+    const { backlogIssueReducer, sprintIssueReducer } = getState() // get the reducers before the transfer (for rollback)
+    dispatch({
+        type: TRANSFER_ISSUE_TO_SPRINT,
+        payload: { issue, sprintId }
+    })
+    dispatch({ type: SET_FETCHING })
     try {
-        const response = await progress.post('/issues?transferto=sprint', { sprint: sprintId, issue: issueId })
-        const transferedIssue = _.omit(response.data, 'todo') // remove the todo array from the issue array to adjst it for the reducer
-        dispatch({ type: TRANSFER_ISSUE_TO_SPRINT, payload: { transferedIssue, issueId, sprintId } })
+        const response = await progress.post('/issues?transferto=sprint', { sprint: sprintId, issue: issue._id })
+        const newIssueId = response.data._id
+        dispatch({ type: UPDATE_ID_OF_TRANSFERED_ISSUE, payload: { issueId: issue._id, newIssueId } })
     } catch (e) {
-        console.log(e.response)
+        dispatch({
+            type: ROLLBACK_TRANSFER_ISSUE,
+            payload: { backlogIssueReducer, sprintIssueReducer }
+        })
+    } finally {
+        dispatch({ type: UNSET_FETCHING })
     }
 }
 
-export const transferIssueToBacklog = (issueId, backlogId) => async dispatch => {
+// Transfer issue from backlog to sprint
+// First dispatch action to add/remove the issue
+// Then send API req to transfer and get back the transfered issue with new _id
+// Then dispatch action to change just the _id we transfered before
+// In case of error dispatch action to rollback the transfer
+export const transferIssueToBacklog = (issue, backlogId) => async (dispatch, getState) => {
+    const { backlogIssueReducer, sprintIssueReducer } = getState() // get the reducers before the transfer (for rollback)
+    dispatch({
+        type: TRANSFTER_ISSUE_TO_BACKLOG,
+        payload: { issue, backlogId }
+    })
+    dispatch({ type: SET_FETCHING })
     try {
-        const response = await progress.post('/issues?transferto=backlog', { backlog: backlogId, issue: issueId })
-        const transferedIssue = _.omit(response.data, 'todo') // remove the todo array from the issue array to adjst it for the reducer
-        dispatch({ type: TRANSFTER_ISSUE__TO_BACKLOG, payload: { transferedIssue, issueId } })
+        const response = await progress.post('/issues?transferto=backlog', { backlog: backlogId, issue: issue._id })
+        const newIssueId = response.data._id
+        dispatch({ type: UPDATE_ID_OF_TRANSFERED_ISSUE, payload: { issueId: issue._id, newIssueId } })
     } catch (e) {
-        console.log(e.response)
+        dispatch({
+            type: ROLLBACK_TRANSFER_ISSUE,
+            payload: { backlogIssueReducer, sprintIssueReducer }
+        })
+    } finally {
+        dispatch({ type: UNSET_FETCHING })
     }
 }
 

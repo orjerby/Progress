@@ -19,7 +19,7 @@ class BacklogIssue extends React.Component {
 const itemSource = {
     beginDrag(props) {
         console.log('dragging', props)
-        props.handleDragged(props.issue._id)
+        props.handleDragged(props.issue)
         return props.issue
     },
     endDrag(props, monitor, component) {

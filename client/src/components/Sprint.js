@@ -13,7 +13,7 @@ class Sprint extends React.Component {
         const results = sprintIssues.map(i => {
             if (sprint._id === i.sprint) {
                 foundIssues = true
-                return <SprintIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issueId) => this.props.setDragged(issueId)} />
+                return <SprintIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issue) => this.props.setDragged(issue)} />
             }
         })
 

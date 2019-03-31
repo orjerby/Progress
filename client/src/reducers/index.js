@@ -6,6 +6,7 @@ import sprintReducer from './sprintReducer'
 import sprintIssueReducer from './sprintIssueReducer'
 import todoReducer from './todoReducer'
 import draggedReducer from './draggedReducer'
+import fetchReducer from './fetchReducer'
 
 // all the reducers
 const reducers = {
@@ -15,7 +16,8 @@ const reducers = {
     sprintReducer,
     sprintIssueReducer,
     todoReducer,
-    draggedReducer
+    draggedReducer,
+    fetchReducer
 }
 
 // combine all reducers together and export them

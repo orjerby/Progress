@@ -11,7 +11,7 @@ class Backlog extends React.Component {
         const { backlogIssues } = this.props
         
         let results = backlogIssues.map(i => {
-            return <BacklogIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issueId)=>this.props.setDragged(issueId)} />
+            return <BacklogIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issue)=>this.props.setDragged(issue)} />
         })
 
         if (results.length === 0) {
