@@ -3,13 +3,13 @@ import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
 
 import BacklogIssue from './BacklogIssue'
-import Modall from './Modall'
+import Popup from './Popup'
 import { setDragged, createIssue } from '../actions'
 import IssueForm from './IssueForm';
 
 class Backlog extends React.Component {
     state = {
-        show: false
+        showPopup: false
     }
 
     renderIssues = () => {
@@ -49,12 +49,12 @@ class Backlog extends React.Component {
                     </div>
                 )
             }
-            <button onClick={() => this.setState({ show: true })}>Create issue</button>
+            <button onClick={() => this.setState({ showPopup: true })}>Create issue</button>
             {
-                this.state.show &&
-                <Modall handleClose={() => this.setState({ show: false })}>
-                    <IssueForm onSubmit={(newIssue) => { this.setState({ show: false }); this.props.createIssue(newIssue, this.props.activeProject.backlog) }} />
-                </Modall>
+                this.state.showPopup &&
+                <Popup handleClose={() => this.setState({ showPopup: false })}>
+                    <IssueForm onSubmit={(newIssue) => { this.setState({ showPopup: false }); this.props.createIssue(newIssue, this.props.activeProject.backlog) }} />
+                </Popup>
             }
         </div>
     }

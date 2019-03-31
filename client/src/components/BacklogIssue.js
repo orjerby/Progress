@@ -1,10 +1,17 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { DragSource } from 'react-dnd'
+import _ from 'lodash'
 
-import { deleteBacklogIssue } from '../actions'
+import { deleteBacklogIssue, updateBacklogIssue } from '../actions'
+import Popup from './Popup'
+import IssueForm from './IssueForm'
 
 class BacklogIssue extends React.Component {
+    state = {
+        showPopup: false
+    }
+
     render() {
         const { issue, isDragging, connectDragSource } = this.props
         const opacity = isDragging ? 0 : 1
@@ -14,7 +21,16 @@ class BacklogIssue extends React.Component {
                 <div>{issue._id}</div>
                 <div>{issue.description}</div>
                 <button onClick={() => this.props.deleteBacklogIssue(issue._id)}>Delete</button>
-                {/* <FaArrowAltCircleUp onClick={() => this.props.transferIssueToSprint(i._id, sprints[0]._id)} /> */}
+
+                <button onClick={() => this.setState({ showPopup: true })}>Edit</button>
+                {
+                    this.state.showPopup &&
+                    <Popup handleClose={() => this.setState({ showPopup: false })}>
+                        <IssueForm 
+                        initialValues={_.pick(issue, 'description')}
+                        onSubmit={(updatedIssue) => { this.setState({ showPopup: false }); this.props.updateBacklogIssue(updatedIssue, issue._id) }} />
+                    </Popup>
+                }
             </div>
         )
     }
@@ -42,6 +58,6 @@ function collectToSprint(connect, monitor) {
     }
 }
 
-const connector = connect(null, { deleteBacklogIssue })(BacklogIssue)
+const connector = connect(null, { deleteBacklogIssue, updateBacklogIssue })(BacklogIssue)
 
 export default DragSource('toSprint', itemSource, collectToSprint)(connector)

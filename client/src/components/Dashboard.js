@@ -1,7 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Dropdown } from 'react-bootstrap'
-import { FaArrowAltCircleUp, FaArrowAltCircleDown } from "react-icons/fa"
 
 import Backlog from './Backlog'
 import SprintList from './SprintList'
