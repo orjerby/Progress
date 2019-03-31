@@ -3,15 +3,20 @@ import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
 
 import BacklogIssue from './BacklogIssue'
-import {setDragged} from '../actions'
+import Modall from './Modall'
+import { setDragged, createIssue } from '../actions'
+import IssueForm from './IssueForm';
 
 class Backlog extends React.Component {
+    state = {
+        show: false
+    }
 
     renderIssues = () => {
         const { backlogIssues } = this.props
-        
+
         let results = backlogIssues.map(i => {
-            return <BacklogIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issue)=>this.props.setDragged(issue)} />
+            return <BacklogIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issue) => this.props.setDragged(issue)} />
         })
 
         if (results.length === 0) {
@@ -24,29 +29,42 @@ class Backlog extends React.Component {
     render() {
         const { connectDropTarget, hovered, canDrop } = this.props
         let backgroundColor = 'aliceblue'
+        let borderStyle = 'solid'
+        let borderColor = 'aliceblue'
         if (canDrop) {
-            backgroundColor = 'lightgreen'
+            backgroundColor = '#d8dfe5'
+            borderStyle = 'dotted'
+            borderColor = 'green'
         }
-        if (hovered) {
-            backgroundColor = 'gray'
-        }
+        // if (hovered) {
+        //     backgroundColor = 'gray'
+        // }
 
         return <div>
             <h2>Backlog</h2>
             {
                 connectDropTarget(
-                    <div style={{ backgroundColor }}>
+                    <div style={{ backgroundColor, borderStyle, borderColor, borderRadius: 5, padding: 5, paddingBottom: 1.5 }}>
                         {this.renderIssues()}
                     </div>
                 )
+            }
+            <button onClick={() => this.setState({ show: true })}>Create issue</button>
+            {
+                this.state.show &&
+                <Modall handleClose={() => this.setState({ show: false })}>
+                    <IssueForm onSubmit={(newIssue) => { this.setState({ show: false }); this.props.createIssue(newIssue, this.props.activeProject.backlog) }} />
+                </Modall>
             }
         </div>
     }
 }
 
-function mapStateToProps({ backlogIssueReducer }) {
+function mapStateToProps({ backlogIssueReducer, activeProjectReducer, fetchReducer }) {
     return {
-        backlogIssues: backlogIssueReducer
+        backlogIssues: backlogIssueReducer,
+        activeProject: activeProjectReducer,
+        fetching: fetchReducer
     }
 }
 
@@ -65,6 +83,6 @@ function collectToBacklog(connect, monitor) {
     }
 }
 
-const connector = connect(mapStateToProps,{setDragged})(Backlog)
+const connector = connect(mapStateToProps, { setDragged, createIssue })(Backlog)
 
 export default DropTarget('toBacklog', itemSource, collectToBacklog)(connector)

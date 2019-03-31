@@ -1,6 +1,8 @@
-import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFER_ISSUE_TO_SPRINT, TRANSFTER_ISSUE_TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG, SET_DRAGGED, UNSET_DRAGGED, UPDATE_ID_OF_TRANSFERED_ISSUE, ROLLBACK_TRANSFER_ISSUE, SET_FETCHING, UNSET_FETCHING } from './types'
+import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFER_ISSUE_TO_SPRINT, TRANSFTER_ISSUE_TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG, SET_DRAGGED, UNSET_DRAGGED, UPDATE_ID_OF_TRANSFERED_ISSUE, ROLLBACK_TRANSFER_ISSUE, SET_FETCHING, UNSET_FETCHING, CREATE_ISSUE, ROLLBACK_CREATE_ISSUE, UPDATE_ID_OF_CREATED_ISSUE } from './types'
 import _ from 'lodash'
+
 import progress from '../apis/progress'
+import history from '../history'
 
 export const createProject = formValues => async dispatch => {
     try {
@@ -128,9 +130,10 @@ export const transferIssueToSprint = (issue, sprintId) => async (dispatch, getSt
 // In case of error dispatch action to rollback the transfer
 export const transferIssueToBacklog = (issue, backlogId) => async (dispatch, getState) => {
     const { backlogIssueReducer, sprintIssueReducer } = getState() // get the reducers before the transfer (for rollback)
+    const issueWithoutSprintProperty = _.omit(issue, 'sprint')
     dispatch({
         type: TRANSFTER_ISSUE_TO_BACKLOG,
-        payload: { issue, backlogId }
+        payload: { issue: issueWithoutSprintProperty, backlogId }
     })
     dispatch({ type: SET_FETCHING })
     try {
@@ -157,5 +160,26 @@ export const setDragged = (issueId) => {
 export const setUndragged = () => {
     return {
         type: UNSET_DRAGGED
+    }
+}
+
+export const createIssue = (issue, backlogId) => async (dispatch, getState) => {
+    const { backlogIssueReducer } = getState() // get the reducer before the creation (for rollback)
+    const issueId = Math.floor(Math.random() * 100)
+    dispatch({ type: CREATE_ISSUE, payload: {...issue, _id: issueId} })
+    dispatch({ type: SET_FETCHING })
+    try {
+        const response = await progress.post('/issues', { backlog: backlogId, issue })
+        dispatch({
+            type: UPDATE_ID_OF_CREATED_ISSUE,
+            payload: { issueId, newIssueId: response.data._id }
+        })
+    } catch (e) {
+        dispatch({
+            type: ROLLBACK_CREATE_ISSUE,
+            payload: { backlogIssueReducer }
+        })
+    } finally {
+        dispatch({ type: UNSET_FETCHING })
     }
 }

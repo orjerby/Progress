@@ -7,6 +7,7 @@ import sprintIssueReducer from './sprintIssueReducer'
 import todoReducer from './todoReducer'
 import draggedReducer from './draggedReducer'
 import fetchReducer from './fetchReducer'
+import { reducer as formReducer } from 'redux-form';
 
 // all the reducers
 const reducers = {
@@ -17,7 +18,8 @@ const reducers = {
     sprintIssueReducer,
     todoReducer,
     draggedReducer,
-    fetchReducer
+    fetchReducer,
+    form: formReducer,
 }
 
 // combine all reducers together and export them

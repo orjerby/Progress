@@ -7,7 +7,7 @@ class SprintIssue extends React.Component {
         const opacity = isDragging ? 0 : 1
 
         return connectDragSource(
-            <div style={{ opacity, padding: 20, cursor: 'move' }}>
+            <div style={{ opacity, cursor: 'move', padding: 20, marginBottom: 5, backgroundColor: 'white' }}>
                 <div>{issue._id}</div>
                 <div>{issue.description}</div>
                 {/* <FaArrowAltCircleUp onClick={() => this.props.transferIssueToSprint(i._id, sprints[0]._id)} /> */}

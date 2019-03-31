@@ -27,15 +27,19 @@ class Sprint extends React.Component {
     render() {
         const { connectDropTarget, canDrop, hovered } = this.props
         let backgroundColor = 'aliceblue'
+        let borderStyle = 'solid'
+        let borderColor = 'aliceblue'
         if (canDrop) {
-            backgroundColor = 'lightgreen'
+            backgroundColor = '#d8dfe5'
+            borderStyle = 'dotted'
+            borderColor = 'green'
         }
-        if (hovered) {
-            backgroundColor = 'gray'
-        }
+        // if (hovered) {
+        //     backgroundColor = 'gray'
+        // }
 
         return connectDropTarget(
-            <div style={{ backgroundColor, }}>
+            <div style={{ backgroundColor, borderStyle, borderColor, borderRadius: 5, padding: 5, paddingBottom: 1.5 }}>
                 {this.renderSprint()}
             </div>
         )
