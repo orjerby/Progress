@@ -6,22 +6,20 @@ const Backlog = require('../models/backlog')
 
 const router = express.Router()
 
-// POST /issues?transferto=sprint
-// POST /issues?transferto=backlog
+// POST /issues?transferTo=sprint
+// POST /issues?transferTo=backlog
 // POST /issues
 router.post('/issues', async (req, res) => {
-    const sprintId = req.body.sprint
-    const backlogId = req.body.backlog
-    const issue = req.body.issue
-    const { transferto } = req.query
+    const { sprintId, backlogId, issue, issueId } = req.body
+    const { transferTo } = req.query
 
-    if (transferto) { // transfer from backlog to sprint or from sprint to backlog
+    if (transferTo) { // transfer from backlog to sprint or from sprint to backlog
 
         // --- validate the data input for transferto query
-        if (transferto !== 'sprint' && transferto !== 'backlog')
-            return res.status(400).send("the transferto query must have value of 'sprint' or 'backlog'")
-        if (!issue || typeof issue !== 'string' || (sprintId && backlogId) || (!sprintId && !backlogId))
-            return res.status(400).send("you must provide issue property(string) and sprint/backlog property")
+        if (transferTo !== 'sprint' && transferTo !== 'backlog')
+            return res.status(400).send("the transferTo query must have value of 'sprint' or 'backlog'")
+        if (!issueId || typeof issueId !== 'string' || (sprintId && backlogId) || (!sprintId && !backlogId))
+            return res.status(400).send("you must provide issueId property(string) and sprint/backlog property")
         // ---
 
         let result // data that come back from mongo as an answer
@@ -31,9 +29,9 @@ router.post('/issues', async (req, res) => {
             let deletedIssue // the deleted issue
             let newIssue  // the new issue
             let _id // new _id for the new issue
-            if (transferto === 'sprint') { // transfer from backlog to sprint
+            if (transferTo === 'sprint') { // transfer from backlog to sprint
                 // --- delete the issue from backlog and get the whole document back (with the deleted issue inside)
-                result = await Backlog.findOneAndUpdate({ "issue._id": issue }, { $pull: { "issue": { _id: issue } } }).session(session)
+                result = await Backlog.findOneAndUpdate({ "issue._id": issueId }, { $pull: { "issue": { _id: issueId } } }).session(session)
                 if (!result) {
                     await session.abortTransaction()
                     return res.status(404).send("couldn't find issue")
@@ -42,7 +40,7 @@ router.post('/issues', async (req, res) => {
 
                 // --- find the deleted issue
                 result.issue.forEach(i => {
-                    if (i._id.toString() === issue) {
+                    if (i._id.toString() === issueId) {
                         return deletedIssue = i
                     }
                 })
@@ -57,15 +55,15 @@ router.post('/issues', async (req, res) => {
                 }
                 // ---
             }
-            else if (transferto === 'backlog') { // like "transferto === 'sprint'" but for backlog
-                result = await Sprint.findOneAndUpdate({ "issue._id": issue }, { $pull: { "issue": { _id: issue } } }).session(session)
+            else if (transferTo === 'backlog') { // like "transferTo === 'sprint'" but for backlog
+                result = await Sprint.findOneAndUpdate({ "issue._id": issueId }, { $pull: { "issue": { _id: issueId } } }).session(session)
                 if (!result) {
                     await session.abortTransaction()
                     return res.status(404).send("couldn't find issue")
                 }
 
                 result.issue.forEach(i => {
-                    if (i._id.toString() === issue) {
+                    if (i._id.toString() === issueId) {
                         return deletedIssue = i
                     }
                 })
@@ -133,7 +131,7 @@ router.post('/issues', async (req, res) => {
 // GET /issues/653465765465?parent=sprint
 // GET /issues/653465765465?parent=backlog
 router.patch('/issues/:_id', async (req, res) => {
-    const _id = req.params._id // id of the issue we want to update
+    const { _id } = req.params // id of the issue we want to update
     const issue = req.body // the updated issue
     const { parent } = req.query
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
@@ -187,7 +185,7 @@ router.patch('/issues/:_id', async (req, res) => {
 // DELETE /issues/653465765465?parent=sprint
 // DELETE /issues/653465765465?parent=backlog
 router.delete('/issues/:_id', async (req, res) => {
-    const _id = req.params._id // id of the issue we want to delete
+    const { _id } = req.params // id of the issue we want to delete
     const { parent } = req.query
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
         return res.status(400).send({ error: "you must provide parent query with value of 'sprint' or 'backlog'" })

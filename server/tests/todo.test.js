@@ -18,7 +18,7 @@ describe('Todos', () => {
             await request(app)
                 .post('/todos?parent=sprint')
                 .send({
-                    issue: issueOneId,
+                    issueId: issueOneId,
                     todo: {
                         description: "My first todo.",
                         createdAt: new Date().getTime()
@@ -42,7 +42,7 @@ describe('Todos', () => {
             await request(app)
                 .post('/todos?parent=sprint')
                 .send({
-                    issue: issueOneId
+                    issueId: issueOneId
                 })
                 .expect(400)
         })
@@ -51,7 +51,7 @@ describe('Todos', () => {
             await request(app)
                 .post('/todos?parent=sprint')
                 .send({
-                    issue: "111111111111111111111111",
+                    issueId: "111111111111111111111111",
                     todo: {
                         description: "My first todo."
                     }
@@ -63,7 +63,7 @@ describe('Todos', () => {
             const response = await request(app)
                 .post('/todos?parent=sprint')
                 .send({
-                    issue: issueOneId,
+                    issueId: issueOneId,
                     todo: {
                         description: "My first todo."
                     }
@@ -97,7 +97,7 @@ describe('Todos', () => {
             await request(app)
                 .patch(`/todos/${todoOneId}?parent=sprint`)
                 .send({
-                    issue: issueOneId,
+                    issueId: issueOneId,
                     todo: {
                         _id: "111111111111111111111111",
                         description: "My first updated todo."
@@ -123,7 +123,7 @@ describe('Todos', () => {
             await request(app)
                 .patch(`/todos/${todoOneId}?parent=sprint`)
                 .send({
-                    issue: issueOneId,
+                    issueId: issueOneId,
                     todo: {
                         description: ""
                     }
@@ -148,7 +148,7 @@ describe('Todos', () => {
             await request(app)
                 .patch('/todos/111111111111111111111111?parent=sprint')
                 .send({
-                    issue: issueOneId,
+                    issueId: issueOneId,
                     todo: {
                         description: "My first updated todo."
                     }
@@ -171,7 +171,7 @@ describe('Todos', () => {
             await request(app)
                 .patch(`/todos/${todoOneId}?parent=sprint`)
                 .send({
-                    issue: issueOneId
+                    issueId: issueOneId
                 })
                 .expect(400)
         })
@@ -180,7 +180,7 @@ describe('Todos', () => {
             await request(app)
                 .patch(`/todos/${todoOneId}?parent=sprint`)
                 .send({
-                    issue: issueOneId,
+                    issueId: issueOneId,
                     todo: {
                         description: "My first updated todo."
                     }

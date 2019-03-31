@@ -8,9 +8,9 @@ const router = express.Router()
 // POST /todos?parent=sprint
 // POST /todos?parent=backlog
 router.post('/todos', async (req, res) => {
-    const _id = req.body.issue
+    const { issueId } = req.body
     const todo = req.body.todo
-    if (!_id || !todo) {
+    if (!issueId || !todo) {
         return res.status(400).send('you must include issue property and todo object')
     }
 
@@ -31,9 +31,9 @@ router.post('/todos', async (req, res) => {
     try {
         let result
         if (parent === 'sprint') {
-            result = await Sprint.findOneAndUpdate({ "issue._id": _id }, { $push: { "issue.$.todo": todo } }, { new: true, runValidators: true })
+            result = await Sprint.findOneAndUpdate({ "issue._id": issueId }, { $push: { "issue.$.todo": todo } }, { new: true, runValidators: true })
         } else if (parent === 'backlog') {
-            result = await Backlog.findOneAndUpdate({ "issue._id": _id }, { $push: { "issue.$.todo": todo } }, { new: true, runValidators: true })
+            result = await Backlog.findOneAndUpdate({ "issue._id": issueId }, { $push: { "issue.$.todo": todo } }, { new: true, runValidators: true })
         }
 
         if (!result) {
@@ -42,7 +42,7 @@ router.post('/todos', async (req, res) => {
 
         // find the new todo sprint in the document using the id whe kept before and send only it
         result.issue.forEach(i => {
-            if (i._id.toString() === _id.toString()) {
+            if (i._id.toString() === issueId.toString()) {
                 i.todo.forEach(j => {
                     if (j._id.toString() === todo._id.toString()) {
                         return res.status(201).send(j)
@@ -59,8 +59,8 @@ router.post('/todos', async (req, res) => {
 // PATCH /todos/4324321453323?parent=backlog
 router.patch('/todos/:_id', async (req, res) => {
     const _id = req.params._id // id of the todo we want to update
-    const issueId = req.body.issue
-    const todo = req.body.todo // the updated todo
+    const { issueId } = req.body
+    const { todo } = req.body // the updated todo
 
     const { parent } = req.query
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
@@ -136,7 +136,7 @@ router.patch('/todos/:_id', async (req, res) => {
 })
 
 router.delete('/todos/:_id', async (req, res) => {
-    const _id = req.params._id
+    const { _id } = req.params
     const { parent } = req.query
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
         return res.status(400).send({ error: "you must provide parent query with value of 'sprint' or 'backlog'" })

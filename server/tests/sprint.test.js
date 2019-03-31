@@ -18,7 +18,7 @@ describe('Sprints', () => {
             await request(app)
                 .post('/sprints')
                 .send({
-                    project: projectOneId,
+                    projectId: projectOneId,
                     description: "My first sprint.",
                     createdAt: new Date().getTime()
                 })
@@ -38,19 +38,19 @@ describe('Sprints', () => {
             const response = await request(app)
                 .post('/sprints')
                 .send({
-                    project: projectOneId,
+                    projectId: projectOneId,
                     description: "My first sprint."
                 })
                 .expect(201)
             const sprint = await Sprint.findById(response.body._id)
             expect(sprint).not.toBeNull()
-            expect(sprint.project).toEqual(projectOneId)
+            expect(sprint.projectId).toEqual(projectOneId)
             expect(sprint.description).toEqual("My first sprint.")
         })
     })
 
     describe('Read', () => {
-        test('Should not read sprints without projectid query', async () => {
+        test('Should not read sprints without projectId query', async () => {
             await request(app)
                 .get(`/sprints`)
                 .send()
@@ -59,7 +59,7 @@ describe('Sprints', () => {
 
         test('Should read sprints for project', async () => {
             const response = await request(app)
-                .get(`/sprints?projectid=${projectOneId}`)
+                .get(`/sprints?projectId=${projectOneId}`)
                 .send()
                 .expect(200)
             expect(response.body.length).toEqual(2)

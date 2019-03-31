@@ -19,7 +19,7 @@ describe('Issues', () => {
             await request(app)
                 .post('/issues')
                 .send({
-                    sprint: sprintOneId,
+                    sprintId: sprintOneId,
                     issue: {
                         description: "My first issue.",
                         createdAt: new Date().getTime()
@@ -43,7 +43,7 @@ describe('Issues', () => {
             await request(app)
                 .post('/issues')
                 .send({
-                    backlog: backlogOneId
+                    backlogId: backlogOneId
                 })
                 .expect(400)
         })
@@ -52,7 +52,7 @@ describe('Issues', () => {
             await request(app)
                 .post('/issues')
                 .send({
-                    backlog: "111111111111111111111111",
+                    backlogId: "111111111111111111111111",
                     issue: {
                         description: "My first issue."
                     }
@@ -64,7 +64,7 @@ describe('Issues', () => {
             const response = await request(app)
                 .post('/issues')
                 .send({
-                    backlog: backlogOneId,
+                    backlogId: backlogOneId,
                     issue: {
                         description: "My first issue."
                     }
@@ -85,100 +85,100 @@ describe('Issues', () => {
     describe('Transfer', () => {
         test('Should not transfer unknown issue', async () => {
             await request(app)
-                .post('/issues?transferto=sprint')
+                .post('/issues?transferTo=sprint')
                 .send({
-                    sprint: sprintTwoId,
-                    issue: '111111111111111111111111'
+                    sprintId: sprintTwoId,
+                    issueId: '111111111111111111111111'
                 })
                 .expect(404)
         })
 
         test('Should not transfer to unknown sprint', async () => {
             await request(app)
-                .post('/issues?transferto=sprint')
+                .post('/issues?transferTo=sprint')
                 .send({
-                    sprint: '111111111111111111111111',
-                    issue: issueTwoId
+                    sprintId: '111111111111111111111111',
+                    issueId: issueTwoId
                 })
                 .expect(404)
         })
 
         test('Should not transfer to unknown backlog', async () => {
             await request(app)
-                .post('/issues?transferto=backlog')
+                .post('/issues?transferTo=backlog')
                 .send({
-                    backlog: '111111111111111111111111',
-                    issue: issueTwoId
+                    backlogId: '111111111111111111111111',
+                    issueId: issueTwoId
                 })
                 .expect(404)
         })
 
         test('Should not transfer without issue property', async () => {
             await request(app)
-                .post('/issues?transferto=sprint')
+                .post('/issues?transferTo=sprint')
                 .send({
-                    sprint: sprintTwoId
+                    sprintId: sprintTwoId
                 })
                 .expect(400)
         })
 
         test('Should not transfer with issue, backlog and sprint properties', async () => {
             await request(app)
-                .post('/issues?transferto=sprint')
+                .post('/issues?transferTo=sprint')
                 .send({
-                    backlog: backlogOneId,
-                    sprint: sprintTwoId,
-                    issue: issueTwoId
+                    backlogId: backlogOneId,
+                    sprintId: sprintTwoId,
+                    issueId: issueTwoId
                 })
                 .expect(400)
         })
 
         test('Should not transfer to sprint without sprint property', async () => {
             await request(app)
-                .post('/issues?transferto=sprint')
+                .post('/issues?transferTo=sprint')
                 .send({
-                    issue: issueTwoId
+                    issueId: issueTwoId
                 })
                 .expect(400)
         })
 
         test('Should not transfer to backlog without backlog property', async () => {
             await request(app)
-                .post('/issues?transferto=backlog')
+                .post('/issues?transferTo=backlog')
                 .send({
-                    issue: issueOneId
+                    issueId: issueOneId
                 })
                 .expect(400)
         })
 
         test('Should transfer to sprint', async () => {
             const sprint = await Sprint.findById(sprintOneId)
-            const backlog = await Backlog.findOne({ project: projectOneId })
+            const backlog = await Backlog.findOne({ projectId: projectOneId })
             await request(app)
-                .post('/issues?transferto=sprint')
+                .post('/issues?transferTo=sprint')
                 .send({
-                    sprint: sprintOneId,
-                    issue: issueTwoId
+                    sprintId: sprintOneId,
+                    issueId: issueTwoId
                 })
                 .expect(201)
             const sprintUpdated = await Sprint.findById(sprintOneId)
-            const backlogUpdated = await Backlog.findOne({ project: projectOneId })
+            const backlogUpdated = await Backlog.findOne({ projectId: projectOneId })
             expect(sprintUpdated.issue.length).toEqual(sprint.issue.length + 1)
             expect(backlogUpdated.issue.length).toEqual(backlog.issue.length - 1)
         })
 
         test('Should transfer to backlog', async () => {
             const sprint = await Sprint.findById(sprintOneId)
-            const backlog = await Backlog.findOne({ project: projectOneId })
+            const backlog = await Backlog.findOne({ projectId: projectOneId })
             await request(app)
-                .post('/issues?transferto=backlog')
+                .post('/issues?transferTo=backlog')
                 .send({
-                    backlog: backlogOneId,
-                    issue: issueOneId
+                    backlogId: backlogOneId,
+                    issueId: issueOneId
                 })
                 .expect(201)
             const sprintUpdated = await Sprint.findById(sprintOneId)
-            const backlogUpdated = await Backlog.findOne({ project: projectOneId })
+            const backlogUpdated = await Backlog.findOne({ projectId: projectOneId })
             expect(backlogUpdated.issue.length).toEqual(backlog.issue.length + 1)
             expect(sprintUpdated.issue.length).toEqual(sprint.issue.length - 1)
         })

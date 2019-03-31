@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Project = require('./project')
 
 const sprintSchema = new mongoose.Schema({
-    project: {
+    projectId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         validate: {

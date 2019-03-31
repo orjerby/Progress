@@ -45,7 +45,7 @@ const issueTwo = {
 const sprintOneId = new mongoose.Types.ObjectId()
 const sprintOne = {
     _id: sprintOneId,
-    project: projectOne,
+    projectId: projectOne,
     description: "My first sprint.",
     issue: [issueOne]
 }
@@ -53,21 +53,21 @@ const sprintOne = {
 const sprintTwoId = new mongoose.Types.ObjectId()
 const sprintTwo = {
     _id: sprintTwoId,
-    project: projectOne,
+    projectId: projectOne,
     description: "My second sprint."
 }
 
 const backlogOneId = new mongoose.Types.ObjectId()
 const backlogOne = {
     _id: backlogOneId,
-    project: projectOne,
+    projectId: projectOne,
     issue: [issueTwo]
 }
 
 const backlogTwoId = new mongoose.Types.ObjectId()
 const backlogTwo = {
     _id: backlogTwoId,
-    project: projectOne
+    projectId: projectOne
 }
 
 const setupDatabase = async () => {

@@ -23,7 +23,7 @@ router.post('/projects', async (req, res) => {
         const project = new Project(req.body)
         await project.save()
         const backlog = new Backlog({
-            project: project._id
+            projectId: project._id
         })
         await backlog.save()
         await session.commitTransaction()
@@ -31,7 +31,7 @@ router.post('/projects', async (req, res) => {
     } catch (e) {
         await session.abortTransaction()
         res.status(400).send(e)
-    }finally{
+    } finally {
         await session.endSession() // close the session for transaction
     }
 })
@@ -46,7 +46,7 @@ router.get('/projects', async (req, res) => {
 })
 
 router.patch('/projects/:_id', async (req, res) => {
-    const _id = req.params._id // id of the project we want to update
+    const { _id } = req.params // id of the project we want to update
     const project = req.body // the updated project
 
     const updates = Object.keys(project)
@@ -84,7 +84,7 @@ router.patch('/projects/:_id', async (req, res) => {
 })
 
 router.delete('/projects/:_id', async (req, res) => {
-    const _id = req.params._id // id of the project we want to delete
+    const { _id } = req.params // id of the project we want to delete
 
     const session = await mongoose.startSession() // start an session for transaction
     try {
@@ -102,7 +102,7 @@ router.delete('/projects/:_id', async (req, res) => {
     } catch (e) {
         await session.abortTransaction()
         res.status(400).send(e)
-    } finally{
+    } finally {
         await session.endSession() // close the session for transaction
     }
 })

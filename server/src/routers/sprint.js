@@ -7,7 +7,7 @@ router.post('/sprints', async (req, res) => {
     const sprint = req.body
 
     const updates = Object.keys(sprint)
-    const allowedUpdates = ['project', 'description']
+    const allowedUpdates = ['projectId', 'description']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -23,16 +23,16 @@ router.post('/sprints', async (req, res) => {
     }
 })
 
-// /sprints?projectid=5c953c618b2c0b16906688b8
+// /sprints?projectId=5c953c618b2c0b16906688b8
 router.get('/sprints', async (req, res) => {
-    const _id = req.query.projectid
+    const { projectId } = req.query
 
-    if (!_id) {
-        return res.status(404).send("you must include projectid in the query")
+    if (!projectId) {
+        return res.status(404).send("you must include projectId in the query")
     }
 
     try {
-        const sprint = await Sprint.find({ project: _id })
+        const sprint = await Sprint.find({ projectId: projectId })
         res.send(sprint)
     } catch (e) {
         res.status(400).send(e)
@@ -40,7 +40,7 @@ router.get('/sprints', async (req, res) => {
 })
 
 router.patch('/sprints/:_id', async (req, res) => {
-    const _id = req.params._id // id of the sprint we want to update
+    const { _id } = req.params // id of the sprint we want to update
     const sprint = req.body // the updated sprint
 
     const updates = Object.keys(sprint)
@@ -78,7 +78,7 @@ router.patch('/sprints/:_id', async (req, res) => {
 })
 
 router.delete('/sprints/:_id', async (req, res) => {
-    const _id = req.params._id // id of the sprint we want to delete
+    const { _id } = req.params // id of the sprint we want to delete
 
     try {
         const sprint = await Sprint.findOneAndDelete({ _id })
