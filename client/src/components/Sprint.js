@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
 
 import SprintIssue from './SprintIssue'
+import { setDragged } from '../actions'
 
 class Sprint extends React.Component {
     renderSprint = () => {
@@ -12,7 +13,7 @@ class Sprint extends React.Component {
         const results = sprintIssues.map(i => {
             if (sprint._id === i.sprint) {
                 foundIssues = true
-                return <SprintIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={this.props.handleDragged} />
+                return <SprintIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issueId) => this.props.setDragged(issueId)} />
             }
         })
 
@@ -50,7 +51,7 @@ function mapStateToProps({ sprintReducer, sprintIssueReducer }) {
 
 const itemSource = {
     drop(props, monitor, component) {
-        props.handleDrop(props.sprint)
+        props.handleDrop(props.sprint._id)
     }
 }
 
@@ -63,6 +64,6 @@ function collectToSprint(connect, monitor) {
     }
 }
 
-const connector = connect(mapStateToProps)(Sprint)
+const connector = connect(mapStateToProps, { setDragged })(Sprint)
 
 export default DropTarget('toSprint', itemSource, collectToSprint)(connector)

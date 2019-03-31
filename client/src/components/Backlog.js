@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
 
 import BacklogIssue from './BacklogIssue'
+import {setDragged} from '../actions'
 
 class Backlog extends React.Component {
 
@@ -10,7 +11,7 @@ class Backlog extends React.Component {
         const { backlogIssues } = this.props
         
         let results = backlogIssues.map(i => {
-            return <BacklogIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={this.props.handleDragged} />
+            return <BacklogIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issueId)=>this.props.setDragged(issueId)} />
         })
 
         if (results.length === 0) {
@@ -64,6 +65,6 @@ function collectToBacklog(connect, monitor) {
     }
 }
 
-const connector = connect(mapStateToProps)(Backlog)
+const connector = connect(mapStateToProps,{setDragged})(Backlog)
 
 export default DropTarget('toBacklog', itemSource, collectToBacklog)(connector)

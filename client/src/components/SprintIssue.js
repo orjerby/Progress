@@ -19,6 +19,7 @@ class SprintIssue extends React.Component {
 const itemSource = {
     beginDrag(props) {
         console.log('dragging', props)
+
         props.handleDragged(props.issue._id)
         return props.issue
     },

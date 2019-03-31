@@ -13,7 +13,7 @@ class SprintList extends React.Component {
                     this.props.sprints.map(s => {
                         return <div key={s._id}>
                             <h2>{s.description}</h2>
-                            <Sprint sprint={s} handleDrop={(sprint) => this.props.transferIssueToSprint(this.props.issueId, sprint._id)} handleDragged={this.props.handleDragged} />
+                            <Sprint sprint={s} handleDrop={(sprintId) => this.props.transferIssueToSprint(this.props.draggedIssue, sprintId)} />
                         </div>
                     })
                 }
@@ -22,9 +22,10 @@ class SprintList extends React.Component {
     }
 }
 
-function mapStateToProps({ sprintReducer }) {
+function mapStateToProps({ sprintReducer, draggedReducer }) {
     return {
-        sprints: sprintReducer
+        sprints: sprintReducer,
+        draggedIssue: draggedReducer
     }
 }
 

@@ -8,11 +8,6 @@ import SprintList from './SprintList'
 import { fetchProjects, createProject, deleteProject, setActiveProject, fetchBacklogs, fetchSprints, transferIssueToSprint, transferIssueToBacklog } from '../actions'
 
 class Dashboard extends React.Component {
-
-    state = {
-        draggedIssueId: undefined
-    }
-
     componentDidMount = () => {
         this.props.fetchProjects()
     }
@@ -44,11 +39,11 @@ class Dashboard extends React.Component {
                 {
                     this.props.activeProject && (
                         <div>
-                            <SprintList issueId={this.state.draggedIssueId} handleDragged={(issueId) => this.setState({ draggedIssueId: issueId })} />
+                            <SprintList />
 
                             <hr />
 
-                            <Backlog handleDragged={(issueId) => this.setState({ draggedIssueId: issueId })} handleDrop={() => this.props.transferIssueToBacklog(this.state.draggedIssueId, this.props.activeProject.backlog)} />
+                            <Backlog handleDrop={() => this.props.transferIssueToBacklog(this.props.draggedIssue, this.props.activeProject.backlog)} />
                         </div>
                     )
                 }
@@ -58,14 +53,15 @@ class Dashboard extends React.Component {
 }
 
 // get the data of whatever reducer you want
-function mapStateToProps({ projectReducer, activeProjectReducer, backlogIssueReducer, sprintReducer, sprintIssueReducer, todoReducer }) {
+function mapStateToProps({ projectReducer, activeProjectReducer, backlogIssueReducer, sprintReducer, sprintIssueReducer, todoReducer, draggedReducer }) {
     return {
         projects: projectReducer,
         activeProject: activeProjectReducer,
         backlogIssues: backlogIssueReducer,
         sprints: sprintReducer,
         sprintIssues: sprintIssueReducer,
-        todos: todoReducer
+        todos: todoReducer,
+        draggedIssue: draggedReducer
     }
 }
 

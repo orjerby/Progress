@@ -1,4 +1,4 @@
-import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFER_ISSUE_TO_SPRINT, TRANSFTER_ISSUE__TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG } from './types'
+import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFER_ISSUE_TO_SPRINT, TRANSFTER_ISSUE__TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG, SET_DRAGGED, UNSET_DRAGGED } from './types'
 import _ from 'lodash'
 import progress from '../apis/progress'
 
@@ -112,5 +112,18 @@ export const transferIssueToBacklog = (issueId, backlogId) => async dispatch => 
         dispatch({ type: TRANSFTER_ISSUE__TO_BACKLOG, payload: { transferedIssue, issueId } })
     } catch (e) {
         console.log(e.response)
+    }
+}
+
+export const setDragged = (issueId) => {
+    return {
+        type: SET_DRAGGED,
+        payload: issueId
+    }
+}
+
+export const setUndragged = () => {
+    return {
+        type: UNSET_DRAGGED
     }
 }
