@@ -1,4 +1,4 @@
-import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFER_ISSUE_TO_SPRINT, TRANSFTER_ISSUE_TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG, SET_DRAGGED, UNSET_DRAGGED, UPDATE_ID_OF_TRANSFERED_ISSUE, ROLLBACK_TRANSFER_ISSUE, SET_FETCHING, UNSET_FETCHING, CREATE_ISSUE, ROLLBACK_CREATE_ISSUE, UPDATE_ID_OF_CREATED_ISSUE } from './types'
+import { CREATE_PROJECT, FETCH_PROJECTS, UPDATE_PROJECT, DELETE_PROJECT, SET_ACTIVE_PROJECT, TRANSFER_ISSUE_TO_SPRINT, TRANSFTER_ISSUE_TO_BACKLOG, SET_SPRINTS, SET_SPRINT_ISSUES, SET_BACKLOG_ISSUES, SET_TODOS, SET_BACKLOG, SET_DRAGGED, UNSET_DRAGGED, UPDATE_ID_OF_TRANSFERED_ISSUE, ROLLBACK_TRANSFER_ISSUE, SET_FETCHING, UNSET_FETCHING, CREATE_ISSUE, ROLLBACK_CREATE_ISSUE, UPDATE_ID_OF_CREATED_ISSUE, ROLLBACK_DELETE_SPRINT_ISSUE, DELETE_ISSUE, ROLLBACK_DELETE_BACKLOG_ISSUE } from './types'
 import _ from 'lodash'
 
 import progress from '../apis/progress'
@@ -7,7 +7,7 @@ import history from '../history'
 export const createProject = formValues => async dispatch => {
     try {
         const response = await progress.post('/projects', formValues)
-        dispatch({ type: CREATE_PROJECT, payload: response.data })
+        dispatch({ type: CREATE_PROJECT, payload: response.data.project })
     } catch (e) {
         console.log(e.response)
     }
@@ -49,7 +49,7 @@ export const setActiveProject = project => {
 
 export const fetchBacklogs = projectId => async dispatch => {
     try {
-        const response = await progress.get(`/backlogs?projectid=${projectId}`)
+        const response = await progress.get(`/backlogs?projectId=${projectId}`)
         const data = response.data
 
         // making the data for the reducers ready
@@ -72,7 +72,7 @@ export const fetchBacklogs = projectId => async dispatch => {
 
 export const fetchSprints = projectId => async dispatch => {
     try {
-        const response = await progress.get(`/sprints?projectid=${projectId}`)
+        const response = await progress.get(`/sprints?projectId=${projectId}`)
         const data = response.data
 
         // making the data for the reducers ready
@@ -110,7 +110,7 @@ export const transferIssueToSprint = (issue, sprintId) => async (dispatch, getSt
     })
     dispatch({ type: SET_FETCHING })
     try {
-        const response = await progress.post('/issues?transferto=sprint', { sprint: sprintId, issue: issue._id })
+        const response = await progress.post('/issues?transferTo=sprint', { sprintId, issueId: issue._id })
         const newIssueId = response.data._id
         dispatch({ type: UPDATE_ID_OF_TRANSFERED_ISSUE, payload: { issueId: issue._id, newIssueId } })
     } catch (e) {
@@ -137,7 +137,7 @@ export const transferIssueToBacklog = (issue, backlogId) => async (dispatch, get
     })
     dispatch({ type: SET_FETCHING })
     try {
-        const response = await progress.post('/issues?transferto=backlog', { backlog: backlogId, issue: issue._id })
+        const response = await progress.post('/issues?transferTo=backlog', { backlogId, issueId: issue._id })
         const newIssueId = response.data._id
         dispatch({ type: UPDATE_ID_OF_TRANSFERED_ISSUE, payload: { issueId: issue._id, newIssueId } })
     } catch (e) {
@@ -166,10 +166,10 @@ export const setUndragged = () => {
 export const createIssue = (issue, backlogId) => async (dispatch, getState) => {
     const { backlogIssueReducer } = getState() // get the reducer before the creation (for rollback)
     const issueId = Math.floor(Math.random() * 100)
-    dispatch({ type: CREATE_ISSUE, payload: {...issue, _id: issueId} })
+    dispatch({ type: CREATE_ISSUE, payload: { ...issue, _id: issueId } })
     dispatch({ type: SET_FETCHING })
     try {
-        const response = await progress.post('/issues', { backlog: backlogId, issue })
+        const response = await progress.post('/issues', { backlogId, issue })
         dispatch({
             type: UPDATE_ID_OF_CREATED_ISSUE,
             payload: { issueId, newIssueId: response.data._id }
@@ -177,7 +177,39 @@ export const createIssue = (issue, backlogId) => async (dispatch, getState) => {
     } catch (e) {
         dispatch({
             type: ROLLBACK_CREATE_ISSUE,
-            payload: { backlogIssueReducer }
+            payload: backlogIssueReducer
+        })
+    } finally {
+        dispatch({ type: UNSET_FETCHING })
+    }
+}
+
+export const deleteSprintIssue = issueId => async (dispatch, getState) => {
+    const { sprintIssueReducer } = getState() // get the reducer before the delete (for rollback)
+    dispatch({ type: DELETE_ISSUE, payload: issueId })
+    dispatch({ type: SET_FETCHING })
+    try {
+        await progress.delete(`/issues/${issueId}?parent=sprint`)
+    } catch (e) {
+        dispatch({
+            type: ROLLBACK_DELETE_SPRINT_ISSUE,
+            payload: sprintIssueReducer
+        })
+    } finally {
+        dispatch({ type: UNSET_FETCHING })
+    }
+}
+
+export const deleteBacklogIssue = issueId => async (dispatch, getState) => {
+    const { backlogIssueReducer } = getState() // get the reducer before the delete (for rollback)
+    dispatch({ type: DELETE_ISSUE, payload: issueId })
+    dispatch({ type: SET_FETCHING })
+    try {
+        await progress.delete(`/issues/${issueId}?parent=backlog`)
+    } catch (e) {
+        dispatch({
+            type: ROLLBACK_DELETE_BACKLOG_ISSUE,
+            payload: backlogIssueReducer
         })
     } finally {
         dispatch({ type: UNSET_FETCHING })

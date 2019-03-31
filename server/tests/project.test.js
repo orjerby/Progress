@@ -46,10 +46,10 @@ describe('Projects', () => {
                     description: "My first project"
                 })
                 .expect(201)
-            const project = await Project.findById(response.body._id)
+            const project = await Project.findById(response.body.project._id)
             expect(project).not.toBeNull()
             expect(project.name).toEqual("or's project")
-            const backlog = await Backlog.findOne({projectId: response.body._id})
+            const backlog = await Backlog.findOne({projectId: response.body.project._id})
             expect(backlog).not.toBeNull()
         })
     })

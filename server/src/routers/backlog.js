@@ -8,7 +8,10 @@ router.get('/backlogs', async (req, res) => {
     const { projectId } = req.query
 
     try {
-        const result = await Backlog.findOne({ project: projectId })
+        const result = await Backlog.findOne({ projectId })
+        if (!result) {
+            return res.status(404).send("couldn't find project")
+        }
         res.send(result)
     } catch (e) {
         res.status(400).send(e)

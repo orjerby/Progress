@@ -1,4 +1,4 @@
-import { SET_SPRINT_ISSUES, TRANSFTER_ISSUE_TO_BACKLOG, TRANSFER_ISSUE_TO_SPRINT, UPDATE_ID_OF_TRANSFERED_ISSUE, ROLLBACK_TRANSFER_ISSUE } from '../actions/types'
+import { SET_SPRINT_ISSUES, TRANSFTER_ISSUE_TO_BACKLOG, TRANSFER_ISSUE_TO_SPRINT, UPDATE_ID_OF_TRANSFERED_ISSUE, ROLLBACK_TRANSFER_ISSUE, DELETE_ISSUE, ROLLBACK_DELETE_SPRINT_ISSUE } from '../actions/types'
 
 export default (state = [], action) => {
     switch (action.type) {
@@ -15,6 +15,10 @@ export default (state = [], action) => {
             return newState
         case ROLLBACK_TRANSFER_ISSUE:
             return action.payload.sprintIssueReducer
+        case DELETE_ISSUE:
+            return state.filter(i => i._id !== action.payload)
+        case ROLLBACK_DELETE_SPRINT_ISSUE:
+            return action.payload
         default:
             return state
     }

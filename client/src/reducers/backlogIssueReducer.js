@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import { SET_BACKLOG_ISSUES, TRANSFTER_ISSUE_TO_BACKLOG, TRANSFER_ISSUE_TO_SPRINT, UPDATE_ID_OF_TRANSFERED_ISSUE, ROLLBACK_TRANSFER_ISSUE, CREATE_ISSUE, ROLLBACK_CREATE_ISSUE, UPDATE_ID_OF_CREATED_ISSUE } from '../actions/types'
+import { SET_BACKLOG_ISSUES, TRANSFTER_ISSUE_TO_BACKLOG, TRANSFER_ISSUE_TO_SPRINT, UPDATE_ID_OF_TRANSFERED_ISSUE, ROLLBACK_TRANSFER_ISSUE, CREATE_ISSUE, ROLLBACK_CREATE_ISSUE, UPDATE_ID_OF_CREATED_ISSUE, DELETE_ISSUE, ROLLBACK_DELETE_BACKLOG_ISSUE } from '../actions/types'
 
 export default (state = [], action) => {
     let foundIndex
@@ -22,12 +22,16 @@ export default (state = [], action) => {
         case CREATE_ISSUE:
             return [...state, action.payload]
         case ROLLBACK_CREATE_ISSUE:
-            return action.payload.backlogIssueReducer
+            return action.payload
         case UPDATE_ID_OF_CREATED_ISSUE:
             foundIndex = state.findIndex(i => i._id === action.payload.issueId)
             newState = state
             newState[foundIndex] = { ...newState[foundIndex], _id: action.payload.newIssueId }
             return newState
+        case DELETE_ISSUE:
+            return state.filter(i => i._id !== action.payload)
+        case ROLLBACK_DELETE_BACKLOG_ISSUE:
+            return action.payload
         default:
             return state
     }

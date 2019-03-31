@@ -1,5 +1,8 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { DragSource } from 'react-dnd'
+
+import { deleteSprintIssue } from '../actions'
 
 class SprintIssue extends React.Component {
     render() {
@@ -10,6 +13,7 @@ class SprintIssue extends React.Component {
             <div style={{ opacity, cursor: 'move', padding: 20, marginBottom: 5, backgroundColor: 'white' }}>
                 <div>{issue._id}</div>
                 <div>{issue.description}</div>
+                <button onClick={() => this.props.deleteSprintIssue(issue._id)}>Delete</button>
                 {/* <FaArrowAltCircleUp onClick={() => this.props.transferIssueToSprint(i._id, sprints[0]._id)} /> */}
             </div>
         )
@@ -39,4 +43,6 @@ function collectToBacklog(connect, monitor) {
     }
 }
 
-export default DragSource('toBacklog', itemSource, collectToBacklog)(SprintIssue)
+const connector = connect(null, { deleteSprintIssue })(SprintIssue)
+
+export default DragSource('toBacklog', itemSource, collectToBacklog)(connector)

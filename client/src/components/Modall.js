@@ -23,17 +23,8 @@ class Modall extends React.Component {
     }
 
     render() {
-        const { children } = this.props
-        console.log(children)
-        // if (!children) {
-        //     return <div></div>
-        // }
         return (
             <>
-                {/* <Button variant="primary" onClick={this.handleShow}>
-                    {this.props.text}
-                </Button> */}
-
                 <Modal show={this.state.show} onHide={this.handleClose}>
                     {this.props.children}
                 </Modal>
