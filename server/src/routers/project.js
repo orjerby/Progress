@@ -27,7 +27,7 @@ router.post('/projects', async (req, res) => {
         })
         await backlog.save()
         await session.commitTransaction()
-        res.status(201).send({ project, backlog })
+        res.status(201).send(project)
     } catch (e) {
         await session.abortTransaction()
         res.status(400).send(e)

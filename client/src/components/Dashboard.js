@@ -4,7 +4,10 @@ import { Dropdown } from 'react-bootstrap'
 
 import Backlog from './Backlog'
 import SprintList from './SprintList'
-import { fetchProjects, createProject, deleteProject, setActiveProject, fetchBacklogs, fetchSprints, transferIssueToSprint, transferIssueToBacklog } from '../actions'
+import { fetchBacklog } from '../actions/backlogs'
+import { fetchSprints } from '../actions/sprints'
+import { fetchProjects, createProject, deleteProject, setActiveProject } from '../actions/projects'
+import { transferIssueToSprint, transferIssueToBacklog } from '../actions/issues'
 
 class Dashboard extends React.Component {
     componentDidMount = () => {
@@ -13,7 +16,7 @@ class Dashboard extends React.Component {
 
     setActiveProject = (project) => {
         this.props.setActiveProject(project)
-        this.props.fetchBacklogs(project._id)
+        this.props.fetchBacklog(project._id)
         this.props.fetchSprints(project._id)
     }
 
@@ -42,7 +45,7 @@ class Dashboard extends React.Component {
 
                             <hr />
 
-                            <Backlog handleDrop={() => this.props.transferIssueToBacklog(this.props.draggedIssue, this.props.activeProject.backlog)} />
+                            <Backlog handleDrop={() => this.props.transferIssueToBacklog(this.props.draggedIssue, this.props.activeProject.backlogId)} />
                         </div>
                     )
                 }
@@ -70,7 +73,7 @@ const actions = {
     createProject,
     deleteProject,
     setActiveProject,
-    fetchBacklogs,
+    fetchBacklog,
     fetchSprints,
     transferIssueToSprint,
     transferIssueToBacklog

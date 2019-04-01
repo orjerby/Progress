@@ -5,7 +5,7 @@ export default (state = null, action) => {
         case SET_ACTIVE_PROJECT:
             return action.payload
         case SET_BACKLOG:
-            return { ...state, backlog: action.payload }
+            return { ...state, backlogId: action.payload }
         default:
             return state
     }

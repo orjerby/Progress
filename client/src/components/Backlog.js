@@ -4,7 +4,7 @@ import { DropTarget } from 'react-dnd'
 
 import BacklogIssue from './BacklogIssue'
 import Popup from './Popup'
-import { setDragged, createIssue } from '../actions'
+import { createBacklogIssue, setDragged } from '../actions/issues'
 import IssueForm from './IssueForm';
 
 class Backlog extends React.Component {
@@ -53,7 +53,7 @@ class Backlog extends React.Component {
             {
                 this.state.showPopup &&
                 <Popup handleClose={() => this.setState({ showPopup: false })}>
-                    <IssueForm onSubmit={(newIssue) => { this.setState({ showPopup: false }); this.props.createIssue(newIssue, this.props.activeProject.backlog) }} />
+                    <IssueForm onSubmit={(newIssue) => { this.setState({ showPopup: false }); this.props.createBacklogIssue(newIssue, this.props.activeProject.backlogId) }} />
                 </Popup>
             }
         </div>
@@ -83,6 +83,6 @@ function collectToBacklog(connect, monitor) {
     }
 }
 
-const connector = connect(mapStateToProps, { setDragged, createIssue })(Backlog)
+const connector = connect(mapStateToProps, { setDragged, createBacklogIssue })(Backlog)
 
 export default DropTarget('toBacklog', itemSource, collectToBacklog)(connector)

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { DragSource } from 'react-dnd'
 import _ from 'lodash'
 
-import { deleteSprintIssue, updateSprintIssue } from '../actions'
+import { deleteSprintIssue, updateSprintIssue } from '../actions/issues'
 import Popup from './Popup'
 import IssueForm from './IssueForm'
 

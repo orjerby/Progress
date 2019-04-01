@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { transferIssueToSprint } from '../actions'
+import { transferIssueToSprint } from '../actions/issues'
 import Sprint from './Sprint'
 
 class SprintList extends React.Component {

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
 
 import SprintIssue from './SprintIssue'
-import { setDragged } from '../actions'
+import { setDragged } from '../actions/issues'
 
 class Sprint extends React.Component {
     renderSprint = () => {
@@ -11,7 +11,7 @@ class Sprint extends React.Component {
 
         let foundIssues = false
         const results = sprintIssues.map(i => {
-            if (sprint._id === i.sprint) {
+            if (sprint._id === i.sprintId) {
                 foundIssues = true
                 return <SprintIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issue) => this.props.setDragged(issue)} />
             }
