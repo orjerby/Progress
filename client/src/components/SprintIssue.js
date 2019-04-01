@@ -4,8 +4,9 @@ import { DragSource } from 'react-dnd'
 import _ from 'lodash'
 
 import { deleteSprintIssue, updateSprintIssue } from '../actions/issues'
-import Popup from './Popup'
+import PopupHandle from './PopupHandle'
 import IssueForm from './IssueForm'
+import DeleteIssue from './DeleteIssue'
 
 class SprintIssue extends React.Component {
     state = {
@@ -20,17 +21,20 @@ class SprintIssue extends React.Component {
             <div style={{ opacity, cursor: 'move', padding: 20, marginBottom: 5, backgroundColor: 'white' }}>
                 <div>{issue._id}</div>
                 <div>{issue.description}</div>
-                <button onClick={() => this.props.deleteSprintIssue(issue._id)}>Delete</button>
 
-                <button onClick={() => this.setState({ showPopup: true })}>Edit</button>
-                {
-                    this.state.showPopup &&
-                    <Popup handleClose={() => this.setState({ showPopup: false })}>
-                        <IssueForm
-                            initialValues={_.pick(issue, 'description')}
-                            onSubmit={(updatedIssue) => { this.setState({ showPopup: false }); this.props.updateSprintIssue(updatedIssue, issue._id) }} />
-                    </Popup>
-                }
+                <PopupHandle
+                    buttonText='Delete'
+                    Component={DeleteIssue}
+                    onSubmit={() => this.props.deleteSprintIssue(issue._id)}
+                />
+
+                <PopupHandle
+                    buttonText='Edit'
+                    Component={IssueForm}
+                    initialValues={_.pick(issue, 'description')}
+                    onSubmit={(updatedIssue) => this.props.updateSprintIssue(updatedIssue, issue._id)}
+                />
+
             </div>
         )
     }

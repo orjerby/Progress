@@ -3,14 +3,11 @@ import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
 
 import BacklogIssue from './BacklogIssue'
-import Popup from './Popup'
 import { createBacklogIssue, setDragged } from '../actions/issues'
 import IssueForm from './IssueForm';
+import PopupHandle from './PopupHandle';
 
 class Backlog extends React.Component {
-    state = {
-        showPopup: false
-    }
 
     renderIssues = () => {
         const { backlogIssues } = this.props
@@ -49,13 +46,12 @@ class Backlog extends React.Component {
                     </div>
                 )
             }
-            <button onClick={() => this.setState({ showPopup: true })}>Create issue</button>
-            {
-                this.state.showPopup &&
-                <Popup handleClose={() => this.setState({ showPopup: false })}>
-                    <IssueForm onSubmit={(newIssue) => { this.setState({ showPopup: false }); this.props.createBacklogIssue(newIssue, this.props.activeProject.backlogId) }} />
-                </Popup>
-            }
+
+            <PopupHandle
+                buttonText='Create issue'
+                Component={IssueForm}
+                onSubmit={(newIssue) => this.props.createBacklogIssue(newIssue, this.props.activeProject.backlogId)}
+            />
         </div>
     }
 }

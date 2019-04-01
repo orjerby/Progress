@@ -4,13 +4,11 @@ import { DragSource } from 'react-dnd'
 import _ from 'lodash'
 
 import { deleteBacklogIssue, updateBacklogIssue } from '../actions/issues'
-import Popup from './Popup'
 import IssueForm from './IssueForm'
+import PopupHandle from './PopupHandle'
+import DeleteIssue from './DeleteIssue'
 
 class BacklogIssue extends React.Component {
-    state = {
-        showPopup: false
-    }
 
     render() {
         const { issue, isDragging, connectDragSource } = this.props
@@ -20,17 +18,19 @@ class BacklogIssue extends React.Component {
             <div style={{ opacity, padding: 20, cursor: 'move', marginBottom: 5, backgroundColor: 'white' }}>
                 <div>{issue._id}</div>
                 <div>{issue.description}</div>
-                <button onClick={() => this.props.deleteBacklogIssue(issue._id)}>Delete</button>
 
-                <button onClick={() => this.setState({ showPopup: true })}>Edit</button>
-                {
-                    this.state.showPopup &&
-                    <Popup handleClose={() => this.setState({ showPopup: false })}>
-                        <IssueForm 
-                        initialValues={_.pick(issue, 'description')}
-                        onSubmit={(updatedIssue) => { this.setState({ showPopup: false }); this.props.updateBacklogIssue(updatedIssue, issue._id) }} />
-                    </Popup>
-                }
+                <PopupHandle
+                    buttonText='Delete'
+                    Component={DeleteIssue}
+                    onSubmit={() => this.props.deleteBacklogIssue(issue._id)}
+                />
+
+                <PopupHandle
+                    buttonText='Edit'
+                    Component={IssueForm}
+                    initialValues={_.pick(issue, 'description')}
+                    onSubmit={(updatedIssue) => this.props.updateBacklogIssue(updatedIssue, issue._id)}
+                />
             </div>
         )
     }
