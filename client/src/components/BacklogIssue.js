@@ -26,10 +26,10 @@ class BacklogIssue extends React.Component {
                 />
 
                 <PopupHandle
-                    buttonText='Edit'
-                    Component={IssueForm}
-                    initialValues={_.pick(issue, 'description')}
-                    onSubmit={(updatedIssue) => this.props.updateBacklogIssue(updatedIssue, issue._id)}
+                    buttonText='Edit' // required
+                    Component={IssueForm} // required
+                    initialValues={_.pick(issue, 'description')} // optional (any other prop will go to PopupHandle and Component)
+                    onSubmit={(updatedIssue) => this.props.updateBacklogIssue(updatedIssue, issue._id)} // required
                 />
             </div>
         )

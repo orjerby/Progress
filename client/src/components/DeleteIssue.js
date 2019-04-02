@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default class D extends React.Component {
+export default class DeleteIssue extends React.Component {
     render() {
         return (
             <div>
