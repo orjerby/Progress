@@ -35,9 +35,26 @@
     margin-bottom: 5px;
 }
 
+.nav-item-text-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
 .nav-item-text {
     font-size: 14px;
     margin-left: 10px;
+}
+
+.nav-item-subtext {
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.nav-item-subtext-header {
+    font-size: 12px;
+    margin-left: 0px;
 }
 
 .nav-item-text-header {
@@ -45,7 +62,8 @@
 }
 
 .nav-item-icon {
-    margin-top: -3px;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .nav-item-icon-header {
@@ -53,7 +71,8 @@
 }
 
 .nav-item-icon-header-picture {
-    width: 50px;
+    width: 40px;
+    margin-top: 5px;
 }
 
 .nav-item-options {

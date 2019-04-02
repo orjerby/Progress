@@ -11,8 +11,13 @@ export default class Menu extends React.Component {
                 <div className='nav-item-container'>
                     <Item
                         handleClick={() => history.push('/')}
-                        picture='https://img.icons8.com/material/4ac144/256/twitter.png' text='Software Engineer' options header />
-                    <Item Icon={FaRunning} text='FOR board' />
+                        handleOptionsClick={()=>console.log('p')}
+                        picture='https://img.icons8.com/material/4ac144/256/twitter.png'
+                        text='orjerby'
+                        subText='Software project'
+                        options
+                        header />
+                    <Item Icon={FaRunning} text='FOR board' subText='Software project' options/>
                     <Item Icon={FaSave} text='Backlog' handleClick={() => history.push('/backlog')} />
                     <Item Icon={FaStar} text='sprints' />
                     <Item Icon={FaTableTennis} text='Reports' />
