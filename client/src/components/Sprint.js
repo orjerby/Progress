@@ -8,9 +8,18 @@ import { setDragged } from '../actions/issues'
 class Sprint extends React.Component {
     renderSprint = () => {
         const { sprint, sprintIssues } = this.props
+        const { connectDropTarget, canDrop } = this.props
+        // let backgroundColor = 'aliceblue'
+        let borderStyle = 'solid'
+        let borderColor = 'aliceblue'
+        if (canDrop) {
+            // backgroundColor = '#d8dfe5'
+            borderStyle = 'dashed'
+            borderColor = 'green'
+        }
 
         let foundIssues = false
-        const results = sprintIssues.map(i => {
+        let results = sprintIssues.map(i => {
             if (sprint._id === i.sprintId) {
                 foundIssues = true
                 return <SprintIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issue) => this.props.setDragged(issue)} />
@@ -19,25 +28,17 @@ class Sprint extends React.Component {
         })
 
         if (!foundIssues) {
-            return <div>There are no issues here</div>
+            results = <div style={{ textAlign: 'center', borderColor: 'lightgray', borderStyle: 'dashed', borderWidth: 2, opacity: 0.5, fontSize: 14 }}>Your sprint is empty.</div>
         }
 
-        return results
+        return <div style={{ borderColor, borderStyle, borderWidth: 1 }}>{results}</div>
     }
 
     render() {
-        const { connectDropTarget, canDrop } = this.props
-        let backgroundColor = 'aliceblue'
-        let borderStyle = 'solid'
-        let borderColor = 'aliceblue'
-        if (canDrop) {
-            backgroundColor = '#d8dfe5'
-            borderStyle = 'dotted'
-            borderColor = 'green'
-        }
+        const { connectDropTarget } = this.props
 
         return connectDropTarget(
-            <div style={{ backgroundColor, borderStyle, borderColor, borderRadius: 5, padding: 5, paddingBottom: 1.5 }}>
+            <div>
                 {this.renderSprint()}
             </div>
         )

@@ -1,44 +1,54 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
+import moment from 'moment'
 
 import BacklogIssue from './BacklogIssue'
 import { createBacklogIssue, setDragged } from '../actions/issues'
 import IssueForm from './IssueForm';
 import PopupHandle from './PopupHandle';
+import Accordion from './Accordion';
 
 class Backlog extends React.Component {
 
     renderIssues = () => {
         const { backlogIssues } = this.props
+        const { canDrop } = this.props
+
+        // let backgroundColor = 'aliceblue'
+        let borderStyle = 'solid'
+        let borderColor = 'aliceblue'
+        if (canDrop) {
+            // backgroundColor = '#d8dfe5'
+            borderStyle = 'dashed'
+            borderColor = 'green'
+        }
 
         let results = backlogIssues.map(i => {
             return <BacklogIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issue) => this.props.setDragged(issue)} />
         })
 
         if (results.length === 0) {
-            return <div>There are no issues here</div>
+            results = <div style={{ textAlign: 'center', borderColor: 'lightgray', borderStyle: 'dashed', borderWidth: 2, opacity: 0.5, fontSize: 14 }}>Your backlog is empty.</div>
         }
 
-        return results
+        return (
+            <Accordion
+                title={'Backlog'}
+                subText={backlogIssues.length + ' issues'}
+            >
+                <div style={{ borderStyle, borderColor, borderWidth: 1 }}>{results}</div>
+            </Accordion>
+        )
     }
 
     render() {
-        const { connectDropTarget, canDrop } = this.props
-        let backgroundColor = 'aliceblue'
-        let borderStyle = 'solid'
-        let borderColor = 'aliceblue'
-        if (canDrop) {
-            backgroundColor = '#d8dfe5'
-            borderStyle = 'dotted'
-            borderColor = 'green'
-        }
+        const { connectDropTarget } = this.props
 
         return <div>
-            <h2>Backlog</h2>
             {
                 connectDropTarget(
-                    <div style={{ backgroundColor, borderStyle, borderColor, borderRadius: 5, padding: 5, paddingBottom: 1.5 }}>
+                    <div>
                         {this.renderIssues()}
                     </div>
                 )
@@ -46,6 +56,7 @@ class Backlog extends React.Component {
 
             <PopupHandle
                 buttonText='Create issue'
+                plus
                 Component={IssueForm}
                 onSubmit={(newIssue) => this.props.createBacklogIssue(newIssue, this.props.activeProject.backlogId)}
             />

@@ -24,9 +24,9 @@ export default () => {
                     
                     <Menu>
                         <ProjectItem />
-                        <Item Icon={<FaSave />} text='Backlog' handleClick={() => history.push('/backlog')} />
-                        <Item Icon={<FaStar />} text='sprints' />
-                        <Item Icon={<FaTableTennis />} text='Reports' />
+                        <Item Icon={<FaSave color='#627f99' />} text='Backlog' handleClick={() => history.push('/backlog')} />
+                        <Item Icon={<FaStar color='#627f99'/>} text='sprints' />
+                        <Item Icon={<FaTableTennis color='#627f99' />} text='Reports' />
                     </Menu>
 
                     <div className='app-container'>

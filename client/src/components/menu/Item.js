@@ -61,7 +61,7 @@ export default class Item extends React.Component {
             <div onClick={handleClick} className={itemClass} >
 
                 <span className={leftClass}>
-                    {picture ? <img className={pictureClass} src={picture} alt={picture} /> : <span className={iconClass}>{Icon}</span>}
+                    {picture ? <img className={pictureClass} src={picture} alt={picture} /> : <span className={iconClass} >{Icon}</span>}
                 </span>
 
                 <span className={`menu-item-middle-container`}>

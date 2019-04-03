@@ -2,15 +2,20 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { DragSource } from 'react-dnd'
 import _ from 'lodash'
+import { FaTasks } from "react-icons/fa"
 
 import { deleteSprintIssue, updateSprintIssue } from '../actions/issues'
-import PopupHandle from './PopupHandle'
-import IssueForm from './IssueForm'
-import DeleteIssue from './DeleteIssue'
 
 class SprintIssue extends React.Component {
     state = {
-        showPopup: false
+        description: undefined
+    }
+
+    handleBlur = (issue) => {
+        if (this.state.description !== issue.description) {
+            this.props.updateSprintIssue({ description: this.state.description }, issue._id)
+        }
+        this.setState({ description: undefined })
     }
 
     render() {
@@ -18,11 +23,23 @@ class SprintIssue extends React.Component {
         const opacity = isDragging ? 0 : 1
 
         return connectDragSource(
-            <div style={{ opacity, cursor: 'move', padding: 20, marginBottom: 5, backgroundColor: 'white' }}>
-                <div>{issue._id}</div>
-                <div>{issue.description}</div>
+            <div style={{ opacity, cursor: 'move', paddingLeft: 12, padding: 5, backgroundColor: 'white', borderWidth: 0.1, display: 'flex', borderStyle: 'solid', borderColor: 'aliceblue' }}
+                onDoubleClick={() => { this.setState({ description: issue.description }); }}
+            >
 
-                <PopupHandle
+                <span style={{ marginLeft: 10 }}><FaTasks color='green' /></span>
+
+                {
+                    this.state.description ?
+                        <input autoFocus onDragStart={(event) => {
+                            event.stopPropagation()
+                            event.preventDefault()
+                        }} draggable style={{ marginLeft: 10, height: 24 }} onBlur={() => this.handleBlur(issue)} onChange={(e) => this.setState({ description: e.target.value })} value={this.state.description} />
+                        :
+                        <div style={{ marginLeft: 10 }}>{issue.description}</div>
+                }
+
+                {/* <PopupHandle
                     buttonText='Delete'
                     Component={DeleteIssue}
                     onSubmit={() => this.props.deleteSprintIssue(issue._id)}
@@ -33,7 +50,7 @@ class SprintIssue extends React.Component {
                     Component={IssueForm}
                     initialValues={_.pick(issue, 'description')}
                     onSubmit={(updatedIssue) => this.props.updateSprintIssue(updatedIssue, issue._id)}
-                />
+                /> */}
 
             </div>
         )

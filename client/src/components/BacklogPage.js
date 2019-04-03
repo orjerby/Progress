@@ -17,12 +17,15 @@ class BacklogPage extends React.Component {
         return (
             <div>
 
+
                 {
                     this.props.activeProject ? (
                         <div>
+
+                            <h3 style={{ marginBottom: 20 }}>Backlog</h3>
+
                             <SprintList />
 
-                            <hr />
 
                             <Backlog handleDrop={() => this.props.transferIssueToBacklog(this.props.draggedIssue, this.props.activeProject.backlogId)} />
                         </div>

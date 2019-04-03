@@ -62,6 +62,15 @@ describe('Projects', () => {
                 .expect(200)
             expect(response.body.length).toEqual(2)
         })
+
+        test("Should read all project's backlog and sprints data", async () => {
+            const response = await request(app)
+                .get(`/projects/${projectOneId}`)
+                .send()
+                .expect(200)
+            expect(response.body.backlog).not.toBeNull()
+            expect(response.body.sprints).not.toBeNull()
+        })
     })
 
     describe('Update', () => {

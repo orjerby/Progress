@@ -2,24 +2,44 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { DragSource } from 'react-dnd'
 import _ from 'lodash'
+import { FaTasks } from "react-icons/fa"
 
 import { deleteBacklogIssue, updateBacklogIssue } from '../actions/issues'
-import IssueForm from './IssueForm'
-import PopupHandle from './PopupHandle'
-import DeleteIssue from './DeleteIssue'
 
 class BacklogIssue extends React.Component {
+    state = {
+        description: undefined
+    }
+
+    handleBlur = (issue) => {
+        if (this.state.description !== issue.description) {
+            this.props.updateBacklogIssue({ description: this.state.description }, issue._id)
+        }
+        this.setState({ description: undefined })
+    }
 
     render() {
         const { issue, isDragging, connectDragSource } = this.props
         const opacity = isDragging ? 0 : 1
 
         return connectDragSource(
-            <div style={{ opacity, padding: 20, cursor: 'move', marginBottom: 5, backgroundColor: 'white' }}>
-                <div>{issue._id}</div>
-                <div>{issue.description}</div>
+            <div style={{ opacity, cursor: 'move', paddingLeft: 12, padding: 5, backgroundColor: 'white', borderWidth: 0.1, display: 'flex', borderStyle: 'solid', borderColor: 'aliceblue' }}
+                onDoubleClick={() => { this.setState({ description: issue.description }); }}
+            >
 
-                <PopupHandle
+                <span style={{ marginLeft: 10 }}><FaTasks color='green' /></span>
+
+                {
+                    this.state.description ?
+                        <input autoFocus onDragStart={(event) => {
+                            event.stopPropagation()
+                            event.preventDefault()
+                        }} draggable style={{ marginLeft: 10, height: 24 }} onBlur={() => this.handleBlur(issue)} onChange={(e) => this.setState({ description: e.target.value })} value={this.state.description} />
+                        :
+                        <div style={{ marginLeft: 10 }}>{issue.description}</div>
+                }
+
+                {/* <PopupHandle
                     buttonText='Delete'
                     Component={DeleteIssue}
                     onSubmit={() => this.props.deleteBacklogIssue(issue._id)}
@@ -30,7 +50,7 @@ class BacklogIssue extends React.Component {
                     Component={IssueForm} // required
                     initialValues={_.pick(issue, 'description')} // optional (any other prop will go to PopupHandle and Component)
                     onSubmit={(updatedIssue) => this.props.updateBacklogIssue(updatedIssue, issue._id)} // required
-                />
+                /> */}
             </div>
         )
     }
