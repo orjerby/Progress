@@ -45,6 +45,22 @@ router.get('/projects', async (req, res) => {
     }
 })
 
+router.get('/projects/:_id', async (req, res) => {
+    const { _id } = req.params // id of the project we want to delete
+
+    try {
+        const backlog = await Backlog.findOne({ projectId: _id })
+        if (!backlog) {
+            return res.status(404).send("couldn't find project")
+        }
+        const sprints = await Sprint.find({ projectId: _id })
+
+        res.send({ backlog, sprints })
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
 router.patch('/projects/:_id', async (req, res) => {
     const { _id } = req.params // id of the project we want to update
     const project = req.body // the updated project

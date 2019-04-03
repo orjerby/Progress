@@ -1,10 +1,13 @@
-import { SET_SPRINT_ISSUES, ROLLBACK_SPRINT_ISSUE, DELETE_SPRINT_ISSUE, UPDATE_SPRINT_ISSUE, CREATE_SPRINT_ISSUE } from '../actions/types'
+import { SET_SPRINT_ISSUES, ROLLBACK_SPRINT_ISSUE, DELETE_SPRINT_ISSUE, UPDATE_SPRINT_ISSUE, CREATE_SPRINT_ISSUE, UNSET_SPRINTS } from '../actions/types'
 
 export default (state = [], action) => {
     switch (action.type) {
 
         case SET_SPRINT_ISSUES:
             return action.payload
+
+        case UNSET_SPRINTS:
+            return []
 
         case CREATE_SPRINT_ISSUE:
             return [...state, action.payload]

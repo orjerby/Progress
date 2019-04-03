@@ -15,6 +15,7 @@ class Sprint extends React.Component {
                 foundIssues = true
                 return <SprintIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issue) => this.props.setDragged(issue)} />
             }
+            return undefined
         })
 
         if (!foundIssues) {
@@ -25,7 +26,7 @@ class Sprint extends React.Component {
     }
 
     render() {
-        const { connectDropTarget, canDrop, hovered } = this.props
+        const { connectDropTarget, canDrop } = this.props
         let backgroundColor = 'aliceblue'
         let borderStyle = 'solid'
         let borderColor = 'aliceblue'
@@ -34,9 +35,6 @@ class Sprint extends React.Component {
             borderStyle = 'dotted'
             borderColor = 'green'
         }
-        // if (hovered) {
-        //     backgroundColor = 'gray'
-        // }
 
         return connectDropTarget(
             <div style={{ backgroundColor, borderStyle, borderColor, borderRadius: 5, padding: 5, paddingBottom: 1.5 }}>
@@ -62,7 +60,6 @@ const itemSource = {
 function collectToSprint(connect, monitor) {
     return {
         connectDropTarget: connect.dropTarget(),
-        hovered: monitor.isOver(),
         item: monitor.getItem(),
         canDrop: monitor.canDrop()
     }

@@ -2,8 +2,6 @@ import _ from 'lodash'
 
 import {
     ROLLBACK_SPRINT_ISSUE,
-    SET_FETCHING,
-    UNSET_FETCHING,
     CREATE_BACKLOG_ISSUE,
     ROLLBACK_BACKLOG_ISSUE,
     DELETE_SPRINT_ISSUE,
@@ -12,7 +10,9 @@ import {
     UPDATE_BACKLOG_ISSUE,
     CREATE_SPRINT_ISSUE,
     SET_DRAGGED,
-    UNSET_DRAGGED
+    UNSET_DRAGGED,
+    SET_ACTION_LOADING,
+    UNSET_ACTION_LOADING
 } from './types'
 import progress from '../apis/progress'
 
@@ -36,7 +36,7 @@ export const transferIssueToSprint = (issue, sprintId) => async (dispatch, getSt
         payload: issueWithSprintIdProperty
     })
 
-    dispatch({ type: SET_FETCHING }) // indicates it's fetching from the API
+    dispatch({ type: SET_ACTION_LOADING })
 
     try {
         const response = await progress.post('/issues?transferTo=sprint', { sprintId, issueId: issue._id })
@@ -59,7 +59,7 @@ export const transferIssueToSprint = (issue, sprintId) => async (dispatch, getSt
             payload: backlogIssueReducer
         })
     } finally {
-        dispatch({ type: UNSET_FETCHING })
+        dispatch({ type: UNSET_ACTION_LOADING })
     }
 }
 
@@ -82,7 +82,8 @@ export const transferIssueToBacklog = (issue, backlogId) => async (dispatch, get
         payload: issueWithoutSprintIdProperty
     })
 
-    dispatch({ type: SET_FETCHING })
+    dispatch({ type: SET_ACTION_LOADING })
+
     try {
         const response = await progress.post('/issues?transferTo=backlog', { backlogId, issueId: issue._id })
         const issueWithoutTodoProperty = _.omit(response.data, 'todo')
@@ -102,7 +103,7 @@ export const transferIssueToBacklog = (issue, backlogId) => async (dispatch, get
             payload: backlogIssueReducer
         })
     } finally {
-        dispatch({ type: UNSET_FETCHING })
+        dispatch({ type: UNSET_ACTION_LOADING })
     }
 }
 
@@ -110,7 +111,7 @@ export const createBacklogIssue = (issue, backlogId) => async (dispatch, getStat
     const { backlogIssueReducer } = getState() // get the reducer before the creation (for rollback)
     const issueId = Math.floor(Math.random() * 100)
     dispatch({ type: CREATE_BACKLOG_ISSUE, payload: { ...issue, _id: issueId } })
-    dispatch({ type: SET_FETCHING })
+    dispatch({ type: SET_ACTION_LOADING })
     try {
         const response = await progress.post('/issues', { backlogId, issue })
         const issueWithoutTodoProperty = _.omit(response.data, 'todo')
@@ -124,14 +125,14 @@ export const createBacklogIssue = (issue, backlogId) => async (dispatch, getStat
             payload: backlogIssueReducer
         })
     } finally {
-        dispatch({ type: UNSET_FETCHING })
+        dispatch({ type: UNSET_ACTION_LOADING })
     }
 }
 
 export const deleteSprintIssue = issueId => async (dispatch, getState) => {
     const { sprintIssueReducer } = getState() // get the reducer before the delete (for rollback)
     dispatch({ type: DELETE_SPRINT_ISSUE, payload: issueId })
-    dispatch({ type: SET_FETCHING })
+    dispatch({ type: SET_ACTION_LOADING })
     try {
         await progress.delete(`/issues/${issueId}?parent=sprint`)
     } catch (e) {
@@ -140,14 +141,14 @@ export const deleteSprintIssue = issueId => async (dispatch, getState) => {
             payload: sprintIssueReducer
         })
     } finally {
-        dispatch({ type: UNSET_FETCHING })
+        dispatch({ type: UNSET_ACTION_LOADING })
     }
 }
 
 export const deleteBacklogIssue = issueId => async (dispatch, getState) => {
     const { backlogIssueReducer } = getState() // get the reducer before the delete (for rollback)
     dispatch({ type: DELETE_BACKLOG_ISSUE, payload: issueId })
-    dispatch({ type: SET_FETCHING })
+    dispatch({ type: SET_ACTION_LOADING })
     try {
         await progress.delete(`/issues/${issueId}?parent=backlog`)
     } catch (e) {
@@ -156,14 +157,14 @@ export const deleteBacklogIssue = issueId => async (dispatch, getState) => {
             payload: backlogIssueReducer
         })
     } finally {
-        dispatch({ type: UNSET_FETCHING })
+        dispatch({ type: UNSET_ACTION_LOADING })
     }
 }
 
 export const updateBacklogIssue = (issue, issueId) => async (dispatch, getState) => {
     const { backlogIssueReducer } = getState() // get the reducer before the creation (for rollback)
     dispatch({ type: UPDATE_BACKLOG_ISSUE, payload: { issue, issueId } })
-    dispatch({ type: SET_FETCHING })
+    dispatch({ type: SET_ACTION_LOADING })
     try {
         await progress.patch(`/issues/${issueId}?parent=backlog`, issue)
     } catch (e) {
@@ -172,14 +173,14 @@ export const updateBacklogIssue = (issue, issueId) => async (dispatch, getState)
             payload: backlogIssueReducer
         })
     } finally {
-        dispatch({ type: UNSET_FETCHING })
+        dispatch({ type: UNSET_ACTION_LOADING })
     }
 }
 
 export const updateSprintIssue = (issue, issueId) => async (dispatch, getState) => {
     const { sprintIssueReducer } = getState() // get the reducer before the creation (for rollback)
     dispatch({ type: UPDATE_SPRINT_ISSUE, payload: { issue, issueId } })
-    dispatch({ type: SET_FETCHING })
+    dispatch({ type: SET_ACTION_LOADING })
     try {
         await progress.patch(`/issues/${issueId}?parent=sprint`, issue)
     } catch (e) {
@@ -188,7 +189,7 @@ export const updateSprintIssue = (issue, issueId) => async (dispatch, getState) 
             payload: sprintIssueReducer
         })
     } finally {
-        dispatch({ type: UNSET_FETCHING })
+        dispatch({ type: UNSET_ACTION_LOADING })
     }
 }
 

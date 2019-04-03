@@ -3,10 +3,13 @@ import { Router, Route, Switch } from 'react-router-dom'
 import { DragDropContextProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import { Container } from 'react-bootstrap'
+import { FaSave, FaStar, FaTableTennis } from "react-icons/fa";
 
 import history from '../history'
-import Dashboard from './Dashboard'
+import BacklogPage from './BacklogPage'
 import Menu from './menu/Menu'
+import Item from './menu/Item'
+import ProjectItem from './menu/ProjectItem'
 
 import '../styles/style.css'
 
@@ -17,14 +20,21 @@ export default () => {
             <Router history={history}>
                 <div>
 
-                    <Menu />
+                    {/* <Menu /> */}
+                    
+                    <Menu>
+                        <ProjectItem />
+                        <Item Icon={<FaSave />} text='Backlog' handleClick={() => history.push('/backlog')} />
+                        <Item Icon={<FaStar />} text='sprints' />
+                        <Item Icon={<FaTableTennis />} text='Reports' />
+                    </Menu>
 
                     <div className='app-container'>
                         <Container fluid>
 
                             {/* our routes. Switch only render the first route that matches the url */}
                             <Switch>
-                                <Route path="/backlog" exact component={Dashboard} />
+                                <Route path="/backlog" exact component={BacklogPage} />
                             </Switch>
 
                         </Container>

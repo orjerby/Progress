@@ -24,7 +24,7 @@ class Backlog extends React.Component {
     }
 
     render() {
-        const { connectDropTarget, hovered, canDrop } = this.props
+        const { connectDropTarget, canDrop } = this.props
         let backgroundColor = 'aliceblue'
         let borderStyle = 'solid'
         let borderColor = 'aliceblue'
@@ -33,9 +33,6 @@ class Backlog extends React.Component {
             borderStyle = 'dotted'
             borderColor = 'green'
         }
-        // if (hovered) {
-        //     backgroundColor = 'gray'
-        // }
 
         return <div>
             <h2>Backlog</h2>
@@ -73,7 +70,6 @@ const itemSource = {
 function collectToBacklog(connect, monitor) {
     return {
         connectDropTarget: connect.dropTarget(),
-        hovered: monitor.isOver(),
         item: monitor.getItem(),
         canDrop: monitor.canDrop()
     }

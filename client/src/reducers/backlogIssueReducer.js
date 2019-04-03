@@ -1,10 +1,13 @@
-import { SET_BACKLOG_ISSUES, ROLLBACK_BACKLOG_ISSUE, CREATE_BACKLOG_ISSUE, DELETE_BACKLOG_ISSUE, UPDATE_BACKLOG_ISSUE } from '../actions/types'
+import { SET_BACKLOG_ISSUES, ROLLBACK_BACKLOG_ISSUE, CREATE_BACKLOG_ISSUE, DELETE_BACKLOG_ISSUE, UPDATE_BACKLOG_ISSUE, UNSET_BACKLOG } from '../actions/types'
 
 export default (state = [], action) => {
     switch (action.type) {
 
         case SET_BACKLOG_ISSUES:
             return action.payload
+
+        case UNSET_BACKLOG:
+            return []
 
         case CREATE_BACKLOG_ISSUE:
             return [...state, action.payload]
