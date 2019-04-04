@@ -1,70 +1,59 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
+import { transferIssueToBacklog } from '../actions/issues'
 import Backlog from './Backlog'
-import SprintList from './SprintList'
-import { fetchProjects, createProject, deleteProject, setActiveProject } from '../actions/projects'
-import { transferIssueToSprint, transferIssueToBacklog } from '../actions/issues'
+import Sprints from './Sprints'
+import Title from './Title';
+import Search from './Search';
 
 class BacklogPage extends React.Component {
 
     render() {
+        const { api, activeProject, transferIssueToBacklog, draggedIssue } = this.props
 
-        if (this.props.api.fetchLoading) {
+        if (api.fetchLoading) {
             return <></>
         }
 
         return (
-            <div>
-
-
+            <>
                 {
-                    this.props.activeProject ? (
+                    activeProject ? (
                         <div>
 
-                            <h3 style={{ marginBottom: 20 }}>Backlog</h3>
+                            <Title text={'Backlog'} />
+                            <Search handleSearch={(searchValue) => console.log(searchValue)} />
 
-                            <SprintList />
+                            {/* Sprints area is in other component in case sprintReducer will be rendered so only this component get rendered */}
+                            <Sprints />
 
+                            <div style={{ height: 15 }}></div>
 
-                            <Backlog handleDrop={() => this.props.transferIssueToBacklog(this.props.draggedIssue, this.props.activeProject.backlogId)} />
+                            <Backlog handleDrop={() => transferIssueToBacklog(draggedIssue, activeProject.backlogId)} />
+                            {/* Backlog area is in other component in case backlogReducer will be rendered so only this component get rendered */}
                         </div>
                     ) :
                         <h1>Select project!</h1>
                 }
 
                 {
-                    this.props.api.actionLoading &&
+                    api.actionLoading &&
                     <div style={{ width: 100, height: 100, backgroundColor: 'red' }}></div>
                 }
-            </div>
+            </>
         )
     }
 }
 
 // get the data of whatever reducer you want
-function mapStateToProps({ projectReducer, activeProjectReducer, backlogIssueReducer, sprintReducer, sprintIssueReducer, todoReducer, draggedReducer, apiReducer }) {
+function mapStateToProps({ activeProjectReducer, draggedReducer, apiReducer }) {
     return {
-        projects: projectReducer,
         activeProject: activeProjectReducer,
-        backlogIssues: backlogIssueReducer,
-        sprints: sprintReducer,
-        sprintIssues: sprintIssueReducer,
-        todos: todoReducer,
         draggedIssue: draggedReducer,
         api: apiReducer
     }
 }
 
-// get whatever action you want
-const actions = {
-    fetchProjects,
-    createProject,
-    deleteProject,
-    setActiveProject,
-    transferIssueToSprint,
-    transferIssueToBacklog
-}
-
 // connect redux with react
-export default connect(mapStateToProps, actions)(BacklogPage)
+export default connect(mapStateToProps, { transferIssueToBacklog })(BacklogPage)

@@ -1,35 +1,50 @@
 import React from 'react'
-import { Button, Collapse } from 'react-bootstrap'
+import PropTypes from 'prop-types'
+import { Collapse } from 'react-bootstrap'
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io"
 
 export default class Accordion extends React.Component {
     state = {
-        open: true
+        collapse: true
     }
 
     render() {
-
-        const { open } = this.state;
+        const { collapse } = this.state
+        const { children, description } = this.props
 
         return (
             <>
                 <div style={{ marginBottom: 10, marginTop: 10 }}>
-                    <div>
-                        <div>
-                            <span style={{ cursor: 'pointer' }}><IoIosArrowDown onClick={() => this.setState({ open: !open })} /></span>
-                            <span style={{ fontWeight: 'bold', marginLeft: 3 }}>{this.props.title}</span>
-                            <span style={{ marginLeft: 8, color: 'gray', fontSize: 13 }}>{this.props.subText}</span>
+                    <div style={{ display: 'flex' }}>
+                        <span>
+
+                            {
+                                collapse ?
+                                <IoIosArrowUp style={{cursor: 'pointer'}} onClick={() => this.setState({ collapse: !collapse })} />
+                                :
+                                <IoIosArrowDown style={{cursor: 'pointer'}} onClick={() => this.setState({ collapse: !collapse })} />
+                            }
+
+                        </span>
+
+                        <div style={{ marginLeft: 5 }}>
+                            {description}
                         </div>
-                        {this.props.footer && <span style={{ marginLeft: 15, color: 'gray', fontSize: 13 }}>{this.props.footer}</span>}
+
                     </div>
-                    <div style={{ paddingTop: 5, paddingBottom: 5 }}></div>
-                    <Collapse in={this.state.open}>
-                        <div style={{ marginLeft: 15 }}>
-                            {this.props.children}
+                    <div style={{ paddingTop: 5 }}></div>
+                    <Collapse in={collapse}>
+                        <div style={{ marginLeft: 20 }}>
+                            {children}
                         </div>
                     </Collapse>
                 </div>
             </>
         )
     }
+}
+
+Accordion.propTypes = {
+    children: PropTypes.any.isRequired,
+    description: PropTypes.element
 }

@@ -1,91 +1,70 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { DropTarget } from 'react-dnd'
-import moment from 'moment'
 
-import BacklogIssue from './BacklogIssue'
-import { createBacklogIssue, setDragged } from '../actions/issues'
+import { createBacklogIssue, transferIssueToBacklog } from '../actions/issues'
+import { createSprint } from '../actions/sprints'
 import IssueForm from './IssueForm';
 import PopupHandle from './PopupHandle';
-import Accordion from './Accordion';
+import Description from './Description';
+import BacklogDrop from './BacklogDrop';
 
 class Backlog extends React.Component {
 
-    renderIssues = () => {
-        const { backlogIssues } = this.props
-        const { canDrop } = this.props
+    handleTransferIssue = () => {
+        const { draggedIssue, activeProject, transferIssueToBacklog } = this.props
+        transferIssueToBacklog(draggedIssue, activeProject.backlogId)
+    }
 
-        // let backgroundColor = 'aliceblue'
-        let borderStyle = 'solid'
-        let borderColor = 'aliceblue'
-        if (canDrop) {
-            // backgroundColor = '#d8dfe5'
-            borderStyle = 'dashed'
-            borderColor = 'green'
-        }
+    handleCreateIssue = (newIssue) => {
+        const { activeProject, createBacklogIssue } = this.props
+        createBacklogIssue(newIssue, activeProject.backlogId)
+    }
 
-        let results = backlogIssues.map(i => {
-            return <BacklogIssue key={i._id} issue={i} handleDrop={_id => console.log('deleting id: ' + _id)} handleDragged={(issue) => this.props.setDragged(issue)} />
-        })
-
-        if (results.length === 0) {
-            results = <div style={{ textAlign: 'center', borderColor: 'lightgray', borderStyle: 'dashed', borderWidth: 2, opacity: 0.5, fontSize: 14 }}>Your backlog is empty.</div>
-        }
-
-        return (
-            <Accordion
-                title={'Backlog'}
-                subText={backlogIssues.length + ' issues'}
-            >
-                <div style={{ borderStyle, borderColor, borderWidth: 1 }}>{results}</div>
-            </Accordion>
-        )
+    handleCreateSprint = (newSprint) => {
+        const { activeProject, createSprint } = this.props
+        createSprint(newSprint, activeProject._id)
     }
 
     render() {
-        const { connectDropTarget } = this.props
+        const { backlogIssues } = this.props
+        const { handleTransferIssue, handleCreateIssue, handleCreateSprint } = this
 
-        return <div>
-            {
-                connectDropTarget(
-                    <div>
-                        {this.renderIssues()}
-                    </div>
-                )
-            }
+        return <div style={{ marginLeft: 20 }}>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ marginBottom: 5 }}>
+                    <Description
+                        text={'Backlog'}
+                        subText={backlogIssues.length + ' issues'}
+                    />
+                </div>
+
+                <PopupHandle
+                    buttonText='Create sprint'
+                    right
+                    Component={IssueForm}
+                    onSubmit={handleCreateSprint}
+                />
+            </div>
+
+            <BacklogDrop handleDrop={handleTransferIssue} />
 
             <PopupHandle
                 buttonText='Create issue'
                 plus
                 Component={IssueForm}
-                onSubmit={(newIssue) => this.props.createBacklogIssue(newIssue, this.props.activeProject.backlogId)}
+                onSubmit={handleCreateIssue}
             />
         </div>
     }
 }
 
-function mapStateToProps({ backlogIssueReducer, activeProjectReducer, fetchReducer }) {
+function mapStateToProps({ backlogIssueReducer, activeProjectReducer, draggedReducer }) {
     return {
         backlogIssues: backlogIssueReducer,
         activeProject: activeProjectReducer,
-        fetching: fetchReducer
+        draggedIssue: draggedReducer
     }
 }
 
-const itemSource = {
-    drop(props, monitor, component) {
-        props.handleDrop()
-    }
-}
-
-function collectToBacklog(connect, monitor) {
-    return {
-        connectDropTarget: connect.dropTarget(),
-        item: monitor.getItem(),
-        canDrop: monitor.canDrop()
-    }
-}
-
-const connector = connect(mapStateToProps, { setDragged, createBacklogIssue })(Backlog)
-
-export default DropTarget('toBacklog', itemSource, collectToBacklog)(connector)
+export default connect(mapStateToProps, { createBacklogIssue, transferIssueToBacklog, createSprint })(Backlog)

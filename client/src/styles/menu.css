@@ -1,3 +1,7 @@
+body {
+    margin-right: 5px;
+}
+
 .app-container {
     margin-left: 260px;
     padding-top: 20px;
@@ -53,7 +57,7 @@
     margin: 4px;
 }
 
-.menu-item-picture{
+.menu-item-picture {
     width: 25px;
     margin-left: -4px;
 }

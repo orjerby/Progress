@@ -1,11 +1,16 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
-export default class DeleteIssue extends React.Component {
-    render() {
-        return (
-            <div>
-                <button onClick={this.props.onSubmit}>Are you sure?</button>
-            </div>
-        )
-    }
+export default function DeleteIssue(props) {
+    const { onSubmit } = props
+
+    return (
+        <div>
+            <button onClick={onSubmit}>Are you sure?</button>
+        </div>
+    )
+}
+
+DeleteIssue.propTypes = {
+    onSubmit: PropTypes.func.isRequired
 }

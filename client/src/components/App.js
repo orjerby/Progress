@@ -11,7 +11,7 @@ import Menu from './menu/Menu'
 import Item from './menu/Item'
 import ProjectItem from './menu/ProjectItem'
 
-import '../styles/style.css'
+import '../styles/menu.css'
 
 export default () => {
     return (
