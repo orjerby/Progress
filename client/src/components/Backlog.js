@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { FaPlus } from "react-icons/fa"
 
 import { createBacklogIssue, transferIssueToBacklog } from '../actions/issues'
 import { createSprint } from '../actions/sprints'
@@ -42,19 +43,25 @@ class Backlog extends React.Component {
                 <PopupHandle
                     buttonText='Create sprint'
                     right
+                    buttonBackgroundColor='#e0e0e0'
+                    buttonColor='gray'
                     Component={IssueForm}
                     onSubmit={handleCreateSprint}
+                    ButtonIcon={FaPlus}
                 />
             </div>
 
             <BacklogDrop handleDrop={handleTransferIssue} />
 
-            <PopupHandle
-                buttonText='Create issue'
-                plus
-                Component={IssueForm}
-                onSubmit={handleCreateIssue}
-            />
+            <div style={{ marginLeft: 50, marginTop: 5 }}>
+                <PopupHandle
+                    buttonText='Create issue'
+                    buttonColor='gray'
+                    ButtonIcon={FaPlus}
+                    Component={IssueForm}
+                    onSubmit={handleCreateIssue}
+                />
+            </div>
         </div>
     }
 }

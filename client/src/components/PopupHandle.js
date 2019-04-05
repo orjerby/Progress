@@ -1,7 +1,7 @@
 import React from 'react'
-import { FaPlus } from "react-icons/fa"
 
 import Popup from './Popup'
+import Button from './Button';
 
 export default class PopupHandle extends React.Component {
     state = {
@@ -14,12 +14,16 @@ export default class PopupHandle extends React.Component {
     }
 
     render() {
-        const { Component, right, plus } = this.props
-        return <div style={{textAlign: right && 'right'}}>
-            <span style={{ marginLeft: 55, cursor: 'pointer' }} onClick={() => this.setState({ showPopup: true })}>
-                {plus && <span style={{ color: 'gray' }}><FaPlus size='0.5em' /></span>}
-                <span style={{ fontSize: 14, color: 'gray', marginLeft: 8 }}>{this.props.buttonText}</span>
-            </span>
+        const { Component, right, buttonText, buttonBackgroundColor, buttonColor, ButtonIcon } = this.props
+        return <div style={{ textAlign: right && 'right' }}>
+            <Button
+                text={buttonText}
+                backgroundColor={buttonBackgroundColor}
+                color={buttonColor}
+                Icon={ButtonIcon}
+                handleClick={() => this.setState({ showPopup: true })}
+            />
+
             {
                 this.state.showPopup &&
                 <Popup handleClose={() => this.setState({ showPopup: false })}>

@@ -1,7 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { DragSource } from 'react-dnd'
-import _ from 'lodash'
 import { FaTasks } from "react-icons/fa"
 
 import { deleteSprintIssue, updateSprintIssue } from '../actions/issues'
