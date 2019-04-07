@@ -12,6 +12,10 @@ router.post('/sprints', auth, async (req, res) => {
     const allowedUpdates = ['projectId', 'description']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
+    if (!req.body.projectId) {
+        return res.status(400).send({ error: 'you must provide projectId property' })
+    }
+
     if (!isValidOperation) {
         return res.status(400).send({ error: 'Invalid properties!' })
     }
@@ -72,11 +76,11 @@ router.patch('/sprints/:_id', auth, async (req, res) => {
     // this is for the $set next. set the property to the new one
     // example: "description: myDescription"
     updates.forEach((update) => updatesObj[update] = sprint[update])
-    updatesObj['updatedAt'] = new Date().getTime()
-
     if (Object.keys(updatesObj).length === 0) { // must include this 'if' unless we want to get another error from the findOneAndUpdate function
         return res.status(400).send('you must include at least one property to update')
     }
+
+    updatesObj['updatedAt'] = new Date().getTime()
 
     try {
         const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })

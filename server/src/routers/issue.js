@@ -171,11 +171,12 @@ router.patch('/issues/:_id', auth, async (req, res) => {
     // this is for the $set next. set the property to the new one
     // example: "issue.$.description: myDescription"
     updates.forEach((update) => updatesObj[`issue.$.${update}`] = issue[update])
-    updatesObj['issue.$.updatedAt'] = new Date().getTime()
 
     if (Object.keys(updatesObj).length === 0) { // must include this 'if' unless we want to get another error from the findOneAndUpdate function
         return res.status(400).send('you must include at least one property to update')
     }
+
+    updatesObj['issue.$.updatedAt'] = new Date().getTime()
 
     try {
         const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
@@ -198,11 +199,17 @@ router.patch('/issues/:_id', auth, async (req, res) => {
             return res.status(404).send(`couldn't find ${parent}`)
         }
 
+        let issueFound = false
         result.issue.forEach(i => {
             if (i._id.toString() === _id.toString()) {
-                res.send(i)
+                issueFound = true
+                return res.send(i)
             }
         })
+
+        if (!issueFound) {
+            res.status(404).send("couldn't find issue")
+        }
 
     } catch (e) {
         res.status(400).send(e)
@@ -211,7 +218,7 @@ router.patch('/issues/:_id', auth, async (req, res) => {
 
 // DELETE /issues/653465765465?parent=sprint&projectId=5423536456454
 // DELETE /issues/653465765465?parent=backlog&projectId=5423536456454
-router.delete('/issues/:_id', async (req, res) => {
+router.delete('/issues/:_id', auth, async (req, res) => {
     const { _id } = req.params // id of the issue we want to delete
     const { parent, projectId } = req.query
 
@@ -241,11 +248,17 @@ router.delete('/issues/:_id', async (req, res) => {
         }
 
         // find the deleted issue sprint in the document and send only it
+        let issueFound = false
         result.issue.forEach(i => {
             if (i._id.toString() === _id.toString()) {
+                issueFound = true
                 return res.send(i)
             }
         })
+
+        if (!issueFound) {
+            res.status(404).send("couldn't find issue")
+        }
     } catch (e) {
         res.status(400).send(e)
     }

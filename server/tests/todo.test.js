@@ -1,7 +1,7 @@
 const request = require('supertest')
 const app = require('../src/app')
 const Sprint = require('../src/models/sprint')
-const { issueOneId, todoOne, todoOneId, setupDatabase } = require('./fixtures/db')
+const { issueOneId, todoOne, todoOneId, setupDatabase, userOne, projectOneId } = require('./fixtures/db')
 
 beforeEach(setupDatabase)
 
@@ -9,14 +9,16 @@ describe('Todos', () => {
     describe('Create', () => {
         test('Should not create todo without properties', async () => {
             await request(app)
-                .post('/todos?parent=sprint')
+                .post(`/todos?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({})
                 .expect(400)
         })
 
         test('Should not create todo with invalid properties', async () => {
             await request(app)
-                .post('/todos?parent=sprint')
+                .post(`/todos?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueOneId,
                     todo: {
@@ -29,7 +31,8 @@ describe('Todos', () => {
 
         test('Should not create todo without issue property', async () => {
             await request(app)
-                .post('/todos?parent=sprint')
+                .post(`/todos?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     todo: {
                         description: "My first todo."
@@ -40,7 +43,8 @@ describe('Todos', () => {
 
         test('Should not create todo without todo object', async () => {
             await request(app)
-                .post('/todos?parent=sprint')
+                .post(`/todos?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueOneId
                 })
@@ -49,7 +53,8 @@ describe('Todos', () => {
 
         test('Should not create todo for non-exist issue', async () => {
             await request(app)
-                .post('/todos?parent=sprint')
+                .post(`/todos?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: "111111111111111111111111",
                     todo: {
@@ -61,7 +66,8 @@ describe('Todos', () => {
 
         test('Should create todo', async () => {
             const response = await request(app)
-                .post('/todos?parent=sprint')
+                .post(`/todos?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueOneId,
                     todo: {
@@ -88,14 +94,16 @@ describe('Todos', () => {
     describe('Update', () => {
         test('Should not update todo without properties', async () => {
             await request(app)
-                .patch(`/todos/${todoOneId}?parent=sprint`)
+                .patch(`/todos/${todoOneId}?parent=sprint&projectId=${projectOneId}&fullUpdate=true`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({})
                 .expect(400)
         })
 
         test('Should not update todo with invalid properties', async () => {
             await request(app)
-                .patch(`/todos/${todoOneId}?parent=sprint`)
+                .patch(`/todos/${todoOneId}?parent=sprint&projectId=${projectOneId}&fullUpdate=true`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueOneId,
                     todo: {
@@ -121,7 +129,8 @@ describe('Todos', () => {
 
         test('Should not update todo with empty description', async () => {
             await request(app)
-                .patch(`/todos/${todoOneId}?parent=sprint`)
+                .patch(`/todos/${todoOneId}?parent=sprint&projectId=${projectOneId}&fullUpdate=true`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueOneId,
                     todo: {
@@ -146,7 +155,8 @@ describe('Todos', () => {
 
         test('Should not update non-exist todo', async () => {
             await request(app)
-                .patch('/todos/111111111111111111111111?parent=sprint')
+                .patch(`/todos/111111111111111111111111?parent=sprint&projectId=${projectOneId}&fullUpdate=true`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueOneId,
                     todo: {
@@ -158,7 +168,8 @@ describe('Todos', () => {
 
         test('Should not update todo without issue property', async () => {
             await request(app)
-                .patch(`/todos/${todoOneId}?parent=sprint`)
+                .patch(`/todos/${todoOneId}?parent=sprint&projectId=${projectOneId}&fullUpdate=true`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     todo: {
                         description: "My first updated todo."
@@ -169,7 +180,8 @@ describe('Todos', () => {
 
         test('Should not update todo without todo object', async () => {
             await request(app)
-                .patch(`/todos/${todoOneId}?parent=sprint`)
+                .patch(`/todos/${todoOneId}?parent=sprint&projectId=${projectOneId}&fullUpdate=true`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueOneId
                 })
@@ -178,7 +190,8 @@ describe('Todos', () => {
 
         test('Should update todo', async () => {
             await request(app)
-                .patch(`/todos/${todoOneId}?parent=sprint`)
+                .patch(`/todos/${todoOneId}?parent=sprint&projectId=${projectOneId}&fullUpdate=true`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueOneId,
                     todo: {
@@ -205,14 +218,16 @@ describe('Todos', () => {
     describe('Delete', () => {
         test('Should not delete non-exist todo', async () => {
             await request(app)
-                .delete('/todos/111111111111111111111111?parent=sprint')
+                .delete(`/todos/111111111111111111111111?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send()
                 .expect(404)
         })
 
         test('Should delete todo', async () => {
             await request(app)
-                .delete(`/todos/${todoOneId}?parent=sprint`)
+                .delete(`/todos/${todoOneId}?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send()
                 .expect(200)
             const task = await Sprint.findOne({ 'issue._id': issueOneId })

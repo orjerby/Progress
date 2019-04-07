@@ -45,7 +45,7 @@ router.post('/projects', auth, async (req, res) => {
 
 router.get('/projects', auth, async (req, res) => {
     try {
-        const project = await Project.findOne({ "users.userId": req.user._id })
+        const project = await Project.find({ "user.userId": req.user._id })
         res.send(project)
     } catch (e) {
         res.status(400).send(e)

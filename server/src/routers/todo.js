@@ -175,7 +175,7 @@ router.patch('/todos/:_id', auth, async (req, res) => {
     }
 })
 
-router.delete('/todos/:_id', async (req, res) => {
+router.delete('/todos/:_id', auth, async (req, res) => {
     const { _id } = req.params
     const { parent, projectId } = req.query
 

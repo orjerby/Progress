@@ -2,7 +2,7 @@ const request = require('supertest')
 const app = require('../src/app')
 const Sprint = require('../src/models/sprint')
 const Backlog = require('../src/models/backlog')
-const { sprintOneId, sprintTwoId, issueOne, issueOneId, issueTwoId, projectOneId, projectTwoId, backlogOne, backlogTwo, backlogTwoId, backlogOneId, setupDatabase } = require('./fixtures/db')
+const { sprintOneId, sprintTwoId, issueOne, issueOneId, issueTwoId, projectOneId, projectTwoId, backlogOne, backlogTwo, backlogTwoId, backlogOneId, setupDatabase, userOne } = require('./fixtures/db')
 
 beforeEach(setupDatabase)
 
@@ -10,14 +10,16 @@ describe('Issues', () => {
     describe('Create', () => {
         test('Should not create issue without properties', async () => {
             await request(app)
-                .post('/issues')
+                .post(`/issues?projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({})
                 .expect(400)
         })
 
         test('Should not create issue with invalid properties', async () => {
             await request(app)
-                .post('/issues')
+                .post(`/issues?projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     sprintId: sprintOneId,
                     issue: {
@@ -30,7 +32,8 @@ describe('Issues', () => {
 
         test('Should not create issue without sprint backlog', async () => {
             await request(app)
-                .post('/issues')
+                .post(`/issues?projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issue: {
                         description: "My first issue."
@@ -41,7 +44,8 @@ describe('Issues', () => {
 
         test('Should not create issue without issue object', async () => {
             await request(app)
-                .post('/issues')
+                .post(`/issues?projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     backlogId: backlogOneId
                 })
@@ -50,7 +54,8 @@ describe('Issues', () => {
 
         test('Should not create issue for non-exist backlog', async () => {
             await request(app)
-                .post('/issues')
+                .post(`/issues?projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     backlogId: "111111111111111111111111",
                     issue: {
@@ -62,7 +67,8 @@ describe('Issues', () => {
 
         test('Should create issue', async () => {
             const response = await request(app)
-                .post('/issues')
+                .post(`/issues?projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     backlogId: backlogOneId,
                     issue: {
@@ -85,7 +91,8 @@ describe('Issues', () => {
     describe('Transfer', () => {
         test('Should not transfer unknown issue', async () => {
             await request(app)
-                .post('/issues?transferTo=sprint')
+                .post(`/issues?transferTo=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     sprintId: sprintTwoId,
                     issueId: '111111111111111111111111'
@@ -95,7 +102,8 @@ describe('Issues', () => {
 
         test('Should not transfer to unknown sprint', async () => {
             await request(app)
-                .post('/issues?transferTo=sprint')
+                .post(`/issues?transferTo=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     sprintId: '111111111111111111111111',
                     issueId: issueTwoId
@@ -105,7 +113,8 @@ describe('Issues', () => {
 
         test('Should not transfer to unknown backlog', async () => {
             await request(app)
-                .post('/issues?transferTo=backlog')
+                .post(`/issues?transferTo=backlog&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     backlogId: '111111111111111111111111',
                     issueId: issueTwoId
@@ -115,7 +124,8 @@ describe('Issues', () => {
 
         test('Should not transfer without issue property', async () => {
             await request(app)
-                .post('/issues?transferTo=sprint')
+                .post(`/issues?transferTo=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     sprintId: sprintTwoId
                 })
@@ -124,7 +134,8 @@ describe('Issues', () => {
 
         test('Should not transfer with issue, backlog and sprint properties', async () => {
             await request(app)
-                .post('/issues?transferTo=sprint')
+                .post(`/issues?transferTo=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     backlogId: backlogOneId,
                     sprintId: sprintTwoId,
@@ -135,7 +146,8 @@ describe('Issues', () => {
 
         test('Should not transfer to sprint without sprint property', async () => {
             await request(app)
-                .post('/issues?transferTo=sprint')
+                .post(`/issues?transferTo=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueTwoId
                 })
@@ -144,7 +156,8 @@ describe('Issues', () => {
 
         test('Should not transfer to backlog without backlog property', async () => {
             await request(app)
-                .post('/issues?transferTo=backlog')
+                .post(`/issues?transferTo=backlog&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     issueId: issueOneId
                 })
@@ -155,7 +168,8 @@ describe('Issues', () => {
             const sprint = await Sprint.findById(sprintOneId)
             const backlog = await Backlog.findOne({ projectId: projectOneId })
             await request(app)
-                .post('/issues?transferTo=sprint')
+                .post(`/issues?transferTo=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     sprintId: sprintOneId,
                     issueId: issueTwoId
@@ -171,7 +185,8 @@ describe('Issues', () => {
             const sprint = await Sprint.findById(sprintOneId)
             const backlog = await Backlog.findOne({ projectId: projectOneId })
             await request(app)
-                .post('/issues?transferTo=backlog')
+                .post(`/issues?transferTo=backlog&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     backlogId: backlogOneId,
                     issueId: issueOneId
@@ -187,14 +202,16 @@ describe('Issues', () => {
     describe('Update', () => {
         test('Should not update issue without properties', async () => {
             await request(app)
-                .patch(`/issues/${issueOneId}?parent=sprint`)
+                .patch(`/issues/${issueOneId}?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({})
                 .expect(400)
         })
 
         test('Should not update issue with invalid properties', async () => {
             await request(app)
-                .patch(`/issues/${issueOneId}?parent=sprint`)
+                .patch(`/issues/${issueOneId}?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     _id: "111111111111111111111111",
                     description: "My first updated issue."
@@ -213,7 +230,8 @@ describe('Issues', () => {
 
         test('Should not update issue with empty description', async () => {
             await request(app)
-                .patch(`/issues/${issueOneId}?parent=sprint`)
+                .patch(`/issues/${issueOneId}?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     description: ""
                 })
@@ -231,7 +249,8 @@ describe('Issues', () => {
 
         test('Should not update non-exist issue', async () => {
             await request(app)
-                .patch('/issues/111111111111111111111111?parent=sprint')
+                .patch(`/issues/111111111111111111111111?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     description: "My first updated issue."
                 })
@@ -240,7 +259,8 @@ describe('Issues', () => {
 
         test('Should update issue', async () => {
             await request(app)
-                .patch(`/issues/${issueOneId}?parent=sprint`)
+                .patch(`/issues/${issueOneId}?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send({
                     description: "My first updated issue."
                 })
@@ -260,14 +280,16 @@ describe('Issues', () => {
     describe('Delete', () => {
         test('Should not delete non-exist issue', async () => {
             await request(app)
-                .delete('/issues/111111111111111111111111?parent=sprint')
+                .delete(`/issues/111111111111111111111111?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send()
                 .expect(404)
         })
 
         test('Should delete issue', async () => {
             await request(app)
-                .delete(`/issues/${issueOneId}?parent=sprint`)
+                .delete(`/issues/${issueOneId}?parent=sprint&projectId=${projectOneId}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
                 .send()
                 .expect(200)
             const sprint = await Sprint.findById(sprintOneId)
