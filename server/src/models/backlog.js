@@ -1,22 +1,11 @@
 const mongoose = require('mongoose')
 const Project = require('./project')
+const moment = require('moment')
 
 const backlogSchema = new mongoose.Schema({
     projectId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        // validate: {
-        //     validator: async function (value) {
-        //         return new Promise(async function (resolve, reject) {
-        //             const project = await Project.findById(value)
-        //             if (!project) {
-        //                 reject("couldn't find project")
-        //             }
-
-        //             resolve()
-        //         })
-        //     }
-        // }
+        required: true
     },
     issue: [
         {
@@ -27,11 +16,11 @@ const backlogSchema = new mongoose.Schema({
             },
             createdAt: {
                 type: Date,
-                default: new Date().getTime()
+                default: moment().format()
             },
             updatedAt: {
                 type: Date,
-                default: new Date().getTime()
+                default: moment().format()
             },
             todo: [
                 {
@@ -50,21 +39,23 @@ const backlogSchema = new mongoose.Schema({
                         enum: ['low', 'medium', 'high'],
                         default: 'medium'
                     },
+                    userId: {
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: 'User'
+                    },
                     createdAt: {
                         type: Date,
-                        default: new Date().getTime()
+                        default: moment().format()
                     },
                     updatedAt: {
                         type: Date,
-                        default: new Date().getTime()
+                        default: moment().format()
                     },
                 }
             ]
         }
     ]
-}, {
-        timestamps: true
-    })
+})
 
 const Backlog = mongoose.model('Backlog', backlogSchema)
 

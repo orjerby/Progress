@@ -17,7 +17,7 @@ router.post('/sprints', auth, async (req, res) => {
     }
 
     try {
-        const project = await Project.findOne({ _id: sprint.projectId, owner: req.user._id })
+        const project = await Project.findOne({ _id: req.body.projectId, ownerId: req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }
@@ -35,11 +35,11 @@ router.get('/sprints', auth, async (req, res) => {
     const { projectId } = req.query
 
     if (!projectId) {
-        return res.status(404).send("you must include projectId in the query")
+        return res.status(400).send("you must include projectId in the query")
     }
 
     try {
-        const project = await Project.findOne({ _id: projectId, "users.user": req.user._id })
+        const project = await Project.findOne({ _id: projectId, "user.userId": req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }
@@ -51,7 +51,6 @@ router.get('/sprints', auth, async (req, res) => {
     }
 })
 
-// added query
 router.patch('/sprints/:_id', auth, async (req, res) => {
     const { _id } = req.params // id of the sprint we want to update
     const { projectId } = req.query
@@ -73,13 +72,14 @@ router.patch('/sprints/:_id', auth, async (req, res) => {
     // this is for the $set next. set the property to the new one
     // example: "description: myDescription"
     updates.forEach((update) => updatesObj[update] = sprint[update])
+    updatesObj['updatedAt'] = new Date().getTime()
 
     if (Object.keys(updatesObj).length === 0) { // must include this 'if' unless we want to get another error from the findOneAndUpdate function
         return res.status(400).send('you must include at least one property to update')
     }
 
     try {
-        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }
@@ -100,7 +100,6 @@ router.patch('/sprints/:_id', auth, async (req, res) => {
     }
 })
 
-// added query
 router.delete('/sprints/:_id', auth, async (req, res) => {
     const { _id } = req.params // id of the sprint we want to delete
     const { projectId } = req.query
@@ -110,7 +109,7 @@ router.delete('/sprints/:_id', auth, async (req, res) => {
     }
 
     try {
-        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }

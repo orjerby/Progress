@@ -10,14 +10,14 @@ const projectSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    owner: {
+    ownerId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'User'
     },
-    users: [
+    user: [
         {
-            user: {
+            userId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User'
                 // unique: true

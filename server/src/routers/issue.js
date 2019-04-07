@@ -32,7 +32,7 @@ router.post('/issues', auth, async (req, res) => {
         const session = await mongoose.startSession() // start an session for transaction
         try {
             await session.startTransaction() // we use transaction because we do combintion of commands to mongodb
-            const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+            const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
             if (!project) {
                 return res.status(404).send({ error: "project wasn't found" })
             }
@@ -59,7 +59,7 @@ router.post('/issues', auth, async (req, res) => {
 
                 // --- push the deleted issue to sprint (with new _id for the issue that we keep for later) and get the whole document back
                 _id = new mongoose.Types.ObjectId()
-                result = await Sprint.findOneAndUpdate({ _id: sprintId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'updatedAt', 'todo']), _id } } }, { new: true, runValidators: true }).session(session)
+                result = await Sprint.findOneAndUpdate({ _id: sprintId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'todo']), _id, updatedAt: new Date().getTime() } } }, { new: true, runValidators: true }).session(session)
                 if (!result) {
                     await session.abortTransaction()
                     return res.status(404).send("couldn't find sprint")
@@ -80,7 +80,7 @@ router.post('/issues', auth, async (req, res) => {
                 })
 
                 _id = new mongoose.Types.ObjectId()
-                result = await Backlog.findOneAndUpdate({ _id: backlogId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'updatedAt', 'todo']), _id } } }, { new: true, runValidators: true }).session(session)
+                result = await Backlog.findOneAndUpdate({ _id: backlogId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'todo']), _id, updatedAt: new Date().getTime() } } }, { new: true, runValidators: true }).session(session)
                 if (!result) {
                     await session.abortTransaction()
                     return res.status(404).send("couldn't find backlog")
@@ -123,7 +123,7 @@ router.post('/issues', auth, async (req, res) => {
 
         issue._id = new mongoose.Types.ObjectId() // new _id for the new issue so we can keep track of it for later
         try {
-            const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+            const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
             if (!project) {
                 return res.status(404).send({ error: "project wasn't found" })
             }
@@ -146,13 +146,13 @@ router.post('/issues', auth, async (req, res) => {
 
 // GET /issues/653465765465?parent=sprint&projectId=43542353424
 // GET /issues/653465765465?parent=backlog&projectId=43542353424
-router.patch('/issues/:_id', async (req, res) => {
+router.patch('/issues/:_id', auth, async (req, res) => {
     const { _id } = req.params // id of the issue we want to update
     const issue = req.body // the updated issue
     const { parent, projectId } = req.query
 
     if (!projectId) {
-        return res.status(404).send("you must include projectId in the query")
+        return res.status(400).send("you must include projectId in the query")
     }
 
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
@@ -171,13 +171,14 @@ router.patch('/issues/:_id', async (req, res) => {
     // this is for the $set next. set the property to the new one
     // example: "issue.$.description: myDescription"
     updates.forEach((update) => updatesObj[`issue.$.${update}`] = issue[update])
+    updatesObj['issue.$.updatedAt'] = new Date().getTime()
 
     if (Object.keys(updatesObj).length === 0) { // must include this 'if' unless we want to get another error from the findOneAndUpdate function
         return res.status(400).send('you must include at least one property to update')
     }
 
     try {
-        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }
@@ -223,7 +224,7 @@ router.delete('/issues/:_id', async (req, res) => {
     }
 
     try {
-        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }

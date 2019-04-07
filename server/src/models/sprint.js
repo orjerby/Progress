@@ -1,33 +1,32 @@
 const mongoose = require('mongoose')
 const Project = require('./project')
+const moment = require('moment')
 
 const sprintSchema = new mongoose.Schema({
     projectId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        // validate: {
-        //     validator: async function (value) {
-        //         return new Promise(async function (resolve, reject) {
-        //             const project = await Project.findById(value)
-        //             if (!project) {
-        //                 reject("couldn't find project")
-        //             }
-
-        //             resolve()
-        //         })
-        //     }
-        // }
+        required: true
     },
-    openDate: {
-        type: Date
+    openAt: {
+        type: Date,
+        default: moment().format()
     },
-    endDate: {
-        type: Date
+    endAt: {
+        type: Date,
+        default: moment().add(2, 'w').format()
     },
     description: {
         type: String,
         trim: true,
         required: true
+    },
+    createdAt: {
+        type: Date,
+        default: moment().format()
+    },
+    updatedAt: {
+        type: Date,
+        default: moment().format()
     },
     issue: [
         {
@@ -38,11 +37,11 @@ const sprintSchema = new mongoose.Schema({
             },
             createdAt: {
                 type: Date,
-                default: new Date().getTime()
+                default: moment().format()
             },
             updatedAt: {
                 type: Date,
-                default: new Date().getTime()
+                default: moment().format()
             },
             todo: [
                 {
@@ -61,21 +60,23 @@ const sprintSchema = new mongoose.Schema({
                         enum: ['low', 'medium', 'high'],
                         default: 'medium'
                     },
+                    userId: {
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: 'User'
+                    },
                     createdAt: {
                         type: Date,
-                        default: new Date().getTime()
+                        default: moment().format()
                     },
                     updatedAt: {
                         type: Date,
-                        default: new Date().getTime()
+                        default: moment().format()
                     },
                 }
             ]
         }
     ]
-}, {
-        timestamps: true
-    })
+})
 
 const Sprint = mongoose.model('Sprint', sprintSchema)
 

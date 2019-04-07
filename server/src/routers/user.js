@@ -1,8 +1,12 @@
 const express = require('express')
+const mongoose = require('mongoose')
 const multer = require('multer')
 const sharp = require('sharp')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
+const Project = require('../models/project')
+const Backlog = require('../models/backlog')
+const Sprint = require('../models/sprint')
 const router = new express.Router()
 
 router.post('/users', async (req, res) => {
@@ -29,7 +33,7 @@ router.post('/users/login', async (req, res) => {
 
 router.post('/users/logout', auth, async (req, res) => {
     try {
-        req.user.tokens = req.user.tokens.filter((token) => {
+        req.user.token = req.user.token.filter((token) => {
             return token.token !== req.token
         })
         await req.user.save()
@@ -42,7 +46,7 @@ router.post('/users/logout', auth, async (req, res) => {
 
 router.post('/users/logoutAll', auth, async (req, res) => {
     try {
-        req.user.tokens = []
+        req.user.token = []
         await req.user.save()
         res.send()
     } catch (e) {
@@ -73,10 +77,20 @@ router.patch('/users/me', auth, async (req, res) => {
 })
 
 router.delete('/users/me', auth, async (req, res) => {
+    const session = await mongoose.startSession() // start an session for transaction
     try {
+        session.startTransaction() // we use transaction because we do combintion of commands to mongodb
         await req.user.remove()
+        const deletedProjectsArray = await Project.find({ ownerId: req.user._id })
+        let deletedProjectsIdArray = []
+        deletedProjectsArray.forEach(p => deletedProjectsIdArray.push(p._id))
+        await Project.deleteMany({ _id: { $in: deletedProjectsIdArray } })
+        await Backlog.deleteMany({ projectId: { $in: deletedProjectsIdArray } })
+        await Sprint.deleteMany({ projectId: { $in: deletedProjectsIdArray } })
+        await session.commitTransaction() // everything worked! commit the transaction
         res.send(req.user)
     } catch (e) {
+        await session.abortTransaction() // it didn't work, abort the transaction
         res.status(500).send()
     }
 })

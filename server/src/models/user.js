@@ -2,6 +2,9 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const Project = require('./project')
+const Sprint = require('./sprint')
+const Backlog = require('./backlog')
 // const Task = require('./task')
 
 const userSchema = new mongoose.Schema({
@@ -30,7 +33,7 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: Buffer
     },
-    tokens: [{
+    token: [{
         token: {
             type: String,
             required: true
@@ -51,7 +54,7 @@ userSchema.methods.toJSON = function () {
     const userObject = user.toObject()
 
     delete userObject.password
-    delete userObject.tokens
+    delete userObject.token
     delete userObject.avatar
 
     return userObject
@@ -61,7 +64,7 @@ userSchema.methods.generateAuthToken = async function () {
     const user = this
     const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
 
-    user.tokens = user.tokens.concat({ token })
+    user.token = user.token.concat({ token })
     await user.save()
 
     return token
@@ -95,11 +98,15 @@ userSchema.pre('save', async function (next) {
 })
 
 // Delete user tasks when user is removed
-userSchema.pre('remove', async function (next) {
-    const user = this
-    await Task.deleteMany({ owner: user._id })
-    next()
-})
+// userSchema.post('remove', async function (next) {
+//     const user = this
+    
+//     // console.log('deletedProject', deletedProject)
+//     // await Backlog.deleteMany({ project: _id })
+//     // await Sprint.deleteMany({ project: _id })
+
+//     next()
+// })
 
 const User = mongoose.model('User', userSchema)
 

@@ -15,7 +15,7 @@ router.post('/todos', auth, async (req, res) => {
     const todo = req.body.todo
 
     if (!projectId) {
-        return res.status(404).send("you must include projectId in the query")
+        return res.status(400).send("you must include projectId in the query")
     }
 
     if (!issueId || !todo) {
@@ -27,7 +27,7 @@ router.post('/todos', auth, async (req, res) => {
     }
 
     const updates = Object.keys(todo)
-    const allowedUpdates = ['description', 'status', 'priority']
+    const allowedUpdates = ['description', 'status', 'priority', 'userId']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -36,7 +36,7 @@ router.post('/todos', auth, async (req, res) => {
 
     todo._id = new mongoose.Types.ObjectId() // keep the id of the new todo sprint for later
     try {
-        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }
@@ -67,16 +67,20 @@ router.post('/todos', auth, async (req, res) => {
     }
 })
 
-// PATCH /todos/4324321453323?parent=sprint&projectId=34254235433522
-// PATCH /todos/4324321453323?parent=backlog&projectId=34254235433522
+// PATCH /todos/4324321453323?parent=sprint&projectId=34254235433522&fullUpdate=false
+// PATCH /todos/4324321453323?parent=backlog&projectId=34254235433522&fullUpdate=true
 router.patch('/todos/:_id', auth, async (req, res) => {
     const _id = req.params._id // id of the todo we want to update
     const { issueId } = req.body
     const { todo } = req.body // the updated todo
-    const { parent } = req.query
+    const { parent, projectId, fullUpdate } = req.query
 
     if (!projectId) {
-        return res.status(404).send("you must include projectId in the query")
+        return res.status(400).send("you must include projectId in the query")
+    }
+
+    if (!fullUpdate) {
+        return res.status(400).send("you must include fullUpdate(boolean) in the query")
     }
 
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
@@ -84,11 +88,19 @@ router.patch('/todos/:_id', auth, async (req, res) => {
     }
 
     if (!issueId || !todo) {
-        return res.status(400).send('you must include issue property and todo object')
+        return res.status(400).send('you must include issueId property and todo object')
     }
 
     const updates = Object.keys(todo)
-    const allowedUpdates = ['description', 'status', 'priority']
+    let allowedUpdates
+    if (fullUpdate === 'true') {
+        allowedUpdates = ['description', 'status', 'priority', 'userId']
+    } else {
+        allowedUpdates = ['status', 'userId']
+        if (todo.userId && todo.userId !== req.user._id.toString()) {
+            return res.status(400).send({ error: 'the userId property is wrong!' }) // ut's not the id of the current user
+        }
+    }
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -101,13 +113,20 @@ router.patch('/todos/:_id', auth, async (req, res) => {
     // this is for the $set next. set the property to the new one
     // example: "issue.$.todo.$[inner].${description}: myDescription"
     updates.forEach((update) => updatesObj[`issue.$.todo.$[inner].${update}`] = todo[update])
+    updatesObj['issue.$.todo.$[inner].updatedAt'] = new Date().getTime()
 
     if (Object.keys(updatesObj).length === 0) { // must include this 'if' unless we want to get another error from the findOneAndUpdate function
         return res.status(400).send('you must include at least one property to update')
     }
 
     try {
-        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        let project
+        if (fullUpdate) {
+            project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
+        } else {
+            project = await Project.findOne({ _id: projectId, 'user.userId': req.user._id })
+        }
+
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }
@@ -156,13 +175,12 @@ router.patch('/todos/:_id', auth, async (req, res) => {
     }
 })
 
-// added query
 router.delete('/todos/:_id', async (req, res) => {
     const { _id } = req.params
     const { parent, projectId } = req.query
 
     if (!projectId) {
-        return res.status(404).send("you must include projectId in the query")
+        return res.status(400).send("you must include projectId in the query")
     }
 
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
@@ -170,7 +188,7 @@ router.delete('/todos/:_id', async (req, res) => {
     }
 
     try {
-        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }
@@ -202,6 +220,8 @@ router.delete('/todos/:_id', async (req, res) => {
 
 module.exports = router
 
-// need to add the ability to let user update status of todo
-// need to include name of user responsible for todo
+// need to add the ability to let user update status of todo - V
+// need to include name of user responsible for todo - V
 // need to add the ability to add users to project
+// need to fix updatedAt - V
+// need to remove all projects of owner when he gets deleted - V

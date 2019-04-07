@@ -10,11 +10,11 @@ router.get('/backlogs', auth, async (req, res) => {
     const { projectId } = req.query
 
     if (!projectId) {
-        return res.status(404).send("you must include projectId in the query")
+        return res.status(400).send("you must include projectId in the query")
     }
 
     try {
-        const project = await Project.findOne({ _id: projectId, "users.user": req.user._id })
+        const project = await Project.findOne({ _id: projectId, "user.userId": req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }

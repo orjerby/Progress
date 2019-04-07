@@ -23,9 +23,9 @@ router.post('/projects', auth, async (req, res) => {
         session.startTransaction()
         const project = new Project({
             ...req.body,
-            owner: req.user._id,
-            users: [{
-                user: req.user._id
+            ownerId: req.user._id,
+            user: [{
+                userId: req.user._id
             }]
         })
         await project.save()
@@ -45,7 +45,7 @@ router.post('/projects', auth, async (req, res) => {
 
 router.get('/projects', auth, async (req, res) => {
     try {
-        const project = await Project.findOne({ "users.user": req.user._id })
+        const project = await Project.findOne({ "users.userId": req.user._id })
         res.send(project)
     } catch (e) {
         res.status(400).send(e)
@@ -90,7 +90,7 @@ router.patch('/projects/:_id', auth, async (req, res) => {
     }
 
     try {
-        const project = await Project.findOneAndUpdate({ _id, owner: req.user._id }, {
+        const project = await Project.findOneAndUpdate({ _id, ownerId: req.user._id }, {
             $set: updatesObj
         }, {
                 new: true, runValidators: true
@@ -112,7 +112,7 @@ router.delete('/projects/:_id', auth, async (req, res) => {
     const session = await mongoose.startSession() // start an session for transaction
     try {
         session.startTransaction() // we use transaction because we do combintion of commands to mongodb
-        const project = await Project.findOneAndDelete({ _id, owner: req.user._id })
+        const project = await Project.findOneAndDelete({ _id, ownerId: req.user._id })
         if (!project) {
             await session.abortTransaction() // it didn't work, abort the transaction
             return res.status(404).send("couldn't find project")
