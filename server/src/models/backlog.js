@@ -5,18 +5,18 @@ const backlogSchema = new mongoose.Schema({
     projectId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        validate: {
-            validator: async function (value) {
-                return new Promise(async function (resolve, reject) {
-                    const project = await Project.findById(value)
-                    if (!project) {
-                        reject("couldn't find project")
-                    }
+        // validate: {
+        //     validator: async function (value) {
+        //         return new Promise(async function (resolve, reject) {
+        //             const project = await Project.findById(value)
+        //             if (!project) {
+        //                 reject("couldn't find project")
+        //             }
 
-                    resolve()
-                })
-            }
-        }
+        //             resolve()
+        //         })
+        //     }
+        // }
     },
     issue: [
         {

@@ -1,22 +1,29 @@
 const express = require('express')
 const Backlog = require('../models/backlog')
+const Project = require('../models/project')
+const auth = require('../middleware/auth')
 
 const router = express.Router()
 
 // /backlogs?projectId=5c953c618b2c0b16906688b8
-router.get('/backlogs', async (req, res) => {
+router.get('/backlogs', auth, async (req, res) => {
     const { projectId } = req.query
 
     if (!projectId) {
         return res.status(404).send("you must include projectId in the query")
     }
-    
+
     try {
-        const result = await Backlog.findOne({ projectId })
-        if (!result) {
-            return res.status(404).send("couldn't find project")
+        const project = await Project.findOne({ _id: projectId, "users.user": req.user._id })
+        if (!project) {
+            return res.status(404).send({ error: "project wasn't found" })
         }
-        res.send(result)
+
+        const backlog = await Backlog.findOne({ projectId })
+        if (!backlog) {
+            return res.status(404).send("couldn't find backlog")
+        }
+        res.send(backlog)
     } catch (e) {
         res.status(400).send(e)
     }

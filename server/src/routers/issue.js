@@ -3,15 +3,21 @@ const mongoose = require('mongoose')
 const _ = require('lodash')
 const Sprint = require('../models/sprint')
 const Backlog = require('../models/backlog')
+const Project = require('../models/project')
+const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-// POST /issues?transferTo=sprint
-// POST /issues?transferTo=backlog
-// POST /issues
-router.post('/issues', async (req, res) => {
+// POST /issues?transferTo=sprint&projectId=45763464576483
+// POST /issues?transferTo=backlog&projectId=45763464576483
+// POST /issues&projectId=45763464576483
+router.post('/issues', auth, async (req, res) => {
     const { sprintId, backlogId, issue, issueId } = req.body
-    const { transferTo } = req.query
+    const { transferTo, projectId } = req.query
+
+    if (!projectId) {
+        return res.status(404).send("you must include projectId in the query")
+    }
 
     if (transferTo) { // transfer from backlog to sprint or from sprint to backlog
 
@@ -26,6 +32,11 @@ router.post('/issues', async (req, res) => {
         const session = await mongoose.startSession() // start an session for transaction
         try {
             await session.startTransaction() // we use transaction because we do combintion of commands to mongodb
+            const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+            if (!project) {
+                return res.status(404).send({ error: "project wasn't found" })
+            }
+
             let deletedIssue // the deleted issue
             let newIssue  // the new issue
             let _id // new _id for the new issue
@@ -112,6 +123,11 @@ router.post('/issues', async (req, res) => {
 
         issue._id = new mongoose.Types.ObjectId() // new _id for the new issue so we can keep track of it for later
         try {
+            const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+            if (!project) {
+                return res.status(404).send({ error: "project wasn't found" })
+            }
+
             result = await Backlog.findOneAndUpdate({ _id: backlogId }, { $push: { issue } }, { new: true, runValidators: true })
             if (!result) {
                 return res.status(404).send("couldn't find backlog")
@@ -128,12 +144,17 @@ router.post('/issues', async (req, res) => {
     }
 })
 
-// GET /issues/653465765465?parent=sprint
-// GET /issues/653465765465?parent=backlog
+// GET /issues/653465765465?parent=sprint&projectId=43542353424
+// GET /issues/653465765465?parent=backlog&projectId=43542353424
 router.patch('/issues/:_id', async (req, res) => {
     const { _id } = req.params // id of the issue we want to update
     const issue = req.body // the updated issue
-    const { parent } = req.query
+    const { parent, projectId } = req.query
+
+    if (!projectId) {
+        return res.status(404).send("you must include projectId in the query")
+    }
+
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
         return res.status(400).send({ error: "you must provide parent query with value of 'sprint' or 'backlog'" })
     }
@@ -156,6 +177,11 @@ router.patch('/issues/:_id', async (req, res) => {
     }
 
     try {
+        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        if (!project) {
+            return res.status(404).send({ error: "project wasn't found" })
+        }
+
         let result
         if (parent === 'sprint') {
             result = await Sprint.findOneAndUpdate({ "issue._id": _id }, {
@@ -182,16 +208,26 @@ router.patch('/issues/:_id', async (req, res) => {
     }
 })
 
-// DELETE /issues/653465765465?parent=sprint
-// DELETE /issues/653465765465?parent=backlog
+// DELETE /issues/653465765465?parent=sprint&projectId=5423536456454
+// DELETE /issues/653465765465?parent=backlog&projectId=5423536456454
 router.delete('/issues/:_id', async (req, res) => {
     const { _id } = req.params // id of the issue we want to delete
-    const { parent } = req.query
+    const { parent, projectId } = req.query
+
+    if (!projectId) {
+        return res.status(404).send("you must include projectId in the query")
+    }
+
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
         return res.status(400).send({ error: "you must provide parent query with value of 'sprint' or 'backlog'" })
     }
 
     try {
+        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        if (!project) {
+            return res.status(404).send({ error: "project wasn't found" })
+        }
+
         let result
         if (parent === 'sprint') {
             result = await Sprint.findOneAndUpdate({ "issue._id": _id }, { $pull: { "issue": { _id } } })

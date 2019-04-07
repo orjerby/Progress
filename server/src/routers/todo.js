@@ -2,19 +2,26 @@ const express = require('express')
 const mongoose = require('mongoose')
 const Sprint = require('../models/sprint')
 const Backlog = require('../models/backlog')
+const Project = require('../models/project')
+const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-// POST /todos?parent=sprint
-// POST /todos?parent=backlog
-router.post('/todos', async (req, res) => {
+// POST /todos?parent=sprint&projectId=34254235433522
+// POST /todos?parent=backlog&projectId=34254235433522
+router.post('/todos', auth, async (req, res) => {
     const { issueId } = req.body
+    const { parent, projectId } = req.query
     const todo = req.body.todo
+
+    if (!projectId) {
+        return res.status(404).send("you must include projectId in the query")
+    }
+
     if (!issueId || !todo) {
         return res.status(400).send('you must include issue property and todo object')
     }
 
-    const { parent } = req.query
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
         return res.status(400).send({ error: "you must provide parent query with value of 'sprint' or 'backlog'" })
     }
@@ -29,6 +36,11 @@ router.post('/todos', async (req, res) => {
 
     todo._id = new mongoose.Types.ObjectId() // keep the id of the new todo sprint for later
     try {
+        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        if (!project) {
+            return res.status(404).send({ error: "project wasn't found" })
+        }
+
         let result
         if (parent === 'sprint') {
             result = await Sprint.findOneAndUpdate({ "issue._id": issueId }, { $push: { "issue.$.todo": todo } }, { new: true, runValidators: true })
@@ -55,14 +67,18 @@ router.post('/todos', async (req, res) => {
     }
 })
 
-// PATCH /todos/4324321453323?parent=sprint
-// PATCH /todos/4324321453323?parent=backlog
-router.patch('/todos/:_id', async (req, res) => {
+// PATCH /todos/4324321453323?parent=sprint&projectId=34254235433522
+// PATCH /todos/4324321453323?parent=backlog&projectId=34254235433522
+router.patch('/todos/:_id', auth, async (req, res) => {
     const _id = req.params._id // id of the todo we want to update
     const { issueId } = req.body
     const { todo } = req.body // the updated todo
-
     const { parent } = req.query
+
+    if (!projectId) {
+        return res.status(404).send("you must include projectId in the query")
+    }
+
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
         return res.status(400).send({ error: "you must provide parent query with value of 'sprint' or 'backlog'" })
     }
@@ -91,6 +107,11 @@ router.patch('/todos/:_id', async (req, res) => {
     }
 
     try {
+        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        if (!project) {
+            return res.status(404).send({ error: "project wasn't found" })
+        }
+
         let result
         if (parent === 'sprint') {
             result = await Sprint.findOneAndUpdate({ "issue._id": issueId }, {
@@ -135,14 +156,25 @@ router.patch('/todos/:_id', async (req, res) => {
     }
 })
 
+// added query
 router.delete('/todos/:_id', async (req, res) => {
     const { _id } = req.params
-    const { parent } = req.query
+    const { parent, projectId } = req.query
+
+    if (!projectId) {
+        return res.status(404).send("you must include projectId in the query")
+    }
+
     if (!parent || (parent !== 'sprint' && parent !== 'backlog')) {
         return res.status(400).send({ error: "you must provide parent query with value of 'sprint' or 'backlog'" })
     }
 
     try {
+        const project = await Project.findOne({ _id: projectId, owner: req.user._id })
+        if (!project) {
+            return res.status(404).send({ error: "project wasn't found" })
+        }
+
         let result
         if (parent === 'sprint') {
             // this time we don't use the 'new' option because we want to find the deleted todo sprint next
@@ -169,3 +201,7 @@ router.delete('/todos/:_id', async (req, res) => {
 })
 
 module.exports = router
+
+// need to add the ability to let user update status of todo
+// need to include name of user responsible for todo
+// need to add the ability to add users to project

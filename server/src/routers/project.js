@@ -3,10 +3,11 @@ const mongoose = require('mongoose')
 const Project = require('../models/project')
 const Sprint = require('../models/sprint')
 const Backlog = require('../models/backlog')
+const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-router.post('/projects', async (req, res) => {
+router.post('/projects', auth, async (req, res) => {
     const project = req.body
 
     const updates = Object.keys(project)
@@ -20,7 +21,13 @@ router.post('/projects', async (req, res) => {
     const session = await mongoose.startSession() // start an session for transaction
     try {
         session.startTransaction()
-        const project = new Project(req.body)
+        const project = new Project({
+            ...req.body,
+            owner: req.user._id,
+            users: [{
+                user: req.user._id
+            }]
+        })
         await project.save()
         const backlog = new Backlog({
             projectId: project._id
@@ -36,32 +43,32 @@ router.post('/projects', async (req, res) => {
     }
 })
 
-router.get('/projects', async (req, res) => {
+router.get('/projects', auth, async (req, res) => {
     try {
-        const project = await Project.find()
+        const project = await Project.findOne({ "users.user": req.user._id })
         res.send(project)
     } catch (e) {
         res.status(400).send(e)
     }
 })
 
-router.get('/projects/:_id', async (req, res) => {
-    const { _id } = req.params // id of the project we want to delete
+// router.get('/projects/:_id', async (req, res) => {
+//     const { _id } = req.params
 
-    try {
-        const backlog = await Backlog.findOne({ projectId: _id })
-        if (!backlog) {
-            return res.status(404).send("couldn't find project")
-        }
-        const sprints = await Sprint.find({ projectId: _id })
+//     try {
+//         const backlog = await Backlog.findOne({ projectId: _id })
+//         if (!backlog) {
+//             return res.status(404).send("couldn't find project")
+//         }
+//         const sprints = await Sprint.find({ projectId: _id })
 
-        res.send({ backlog, sprints })
-    } catch (e) {
-        res.status(400).send(e)
-    }
-})
+//         res.send({ backlog, sprints })
+//     } catch (e) {
+//         res.status(400).send(e)
+//     }
+// })
 
-router.patch('/projects/:_id', async (req, res) => {
+router.patch('/projects/:_id', auth, async (req, res) => {
     const { _id } = req.params // id of the project we want to update
     const project = req.body // the updated project
 
@@ -83,7 +90,7 @@ router.patch('/projects/:_id', async (req, res) => {
     }
 
     try {
-        const project = await Project.findOneAndUpdate({ _id }, {
+        const project = await Project.findOneAndUpdate({ _id, owner: req.user._id }, {
             $set: updatesObj
         }, {
                 new: true, runValidators: true
@@ -99,13 +106,13 @@ router.patch('/projects/:_id', async (req, res) => {
     }
 })
 
-router.delete('/projects/:_id', async (req, res) => {
+router.delete('/projects/:_id', auth, async (req, res) => {
     const { _id } = req.params // id of the project we want to delete
 
     const session = await mongoose.startSession() // start an session for transaction
     try {
         session.startTransaction() // we use transaction because we do combintion of commands to mongodb
-        const project = await Project.findOneAndDelete({ _id })
+        const project = await Project.findOneAndDelete({ _id, owner: req.user._id })
         if (!project) {
             await session.abortTransaction() // it didn't work, abort the transaction
             return res.status(404).send("couldn't find project")
