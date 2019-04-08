@@ -5,28 +5,25 @@ const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-router.post('/sprints', auth, async (req, res) => {
+router.post('/sprints/projects/:projectId', auth, async (req, res) => {
     const sprint = req.body
+    const { projectId } = req.params
 
     const updates = Object.keys(sprint)
-    const allowedUpdates = ['projectId', 'description']
+    const allowedUpdates = ['description']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
-
-    if (!req.body.projectId) {
-        return res.status(400).send({ error: 'you must provide projectId property' })
-    }
 
     if (!isValidOperation) {
         return res.status(400).send({ error: 'Invalid properties!' })
     }
 
     try {
-        const project = await Project.findOne({ _id: req.body.projectId, ownerId: req.user._id })
+        const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
         if (!project) {
             return res.status(404).send({ error: "project wasn't found" })
         }
 
-        let sprint = new Sprint(req.body)
+        let sprint = new Sprint({ ...req.body, projectId })
         sprint = await sprint.save()
         res.status(201).send(sprint)
     } catch (e) {
@@ -34,13 +31,8 @@ router.post('/sprints', auth, async (req, res) => {
     }
 })
 
-// /sprints?projectId=5c953c618b2c0b16906688b8
-router.get('/sprints', auth, async (req, res) => {
-    const { projectId } = req.query
-
-    if (!projectId) {
-        return res.status(400).send("you must include projectId in the query")
-    }
+router.get('/sprints/projects/:projectId', auth, async (req, res) => {
+    const { projectId } = req.params
 
     try {
         const project = await Project.findOne({ _id: projectId, "user.userId": req.user._id })
@@ -55,14 +47,10 @@ router.get('/sprints', auth, async (req, res) => {
     }
 })
 
-router.patch('/sprints/:_id', auth, async (req, res) => {
-    const { _id } = req.params // id of the sprint we want to update
-    const { projectId } = req.query
-    const sprint = req.body // the updated sprint
 
-    if (!projectId) {
-        return res.status(400).send({ error: 'please provide projectId query' })
-    }
+router.patch('/sprints/:_id/projects/:projectId', auth, async (req, res) => {
+    const { _id, projectId } = req.params // id of the sprint we want to update
+    const sprint = req.body // the updated sprint
 
     const updates = Object.keys(sprint)
     const allowedUpdates = ['description']
@@ -104,18 +92,13 @@ router.patch('/sprints/:_id', auth, async (req, res) => {
     }
 })
 
-router.delete('/sprints/:_id', auth, async (req, res) => {
-    const { _id } = req.params // id of the sprint we want to delete
-    const { projectId } = req.query
-
-    if (!projectId) {
-        return res.status(400).send({ error: 'please provide projectId query' })
-    }
+router.delete('/sprints/:_id/projects/:projectId', auth, async (req, res) => {
+    const { _id, projectId } = req.params // id of the sprint we want to delete
 
     try {
         const project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
         if (!project) {
-            return res.status(404).send({ error: "project wasn't found" })
+            return res.status(404).send({ error: "project wasn't found" }) // (project wasn't found for this user)
         }
 
         const sprint = await Sprint.findOneAndDelete({ _id })

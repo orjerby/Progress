@@ -5,9 +5,8 @@ const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-// /backlogs?projectId=5c953c618b2c0b16906688b8
-router.get('/backlogs', auth, async (req, res) => {
-    const { projectId } = req.query
+router.get('/backlogs/projects/:projectId', auth, async (req, res) => {
+    const { projectId } = req.params
 
     if (!projectId) {
         return res.status(400).send("you must include projectId in the query")
