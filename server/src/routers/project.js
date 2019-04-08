@@ -118,8 +118,8 @@ router.delete('/projects/:_id', auth, async (req, res) => {
             return res.status(404).send("couldn't find project")
         }
 
-        await Backlog.deleteMany({ project: _id })
-        await Sprint.deleteMany({ project: _id })
+        await Backlog.deleteMany({ projectId: _id })
+        await Sprint.deleteMany({ projectId: _id })
         await session.commitTransaction() // everything worked! commit the transaction
         res.send(project)
     } catch (e) {

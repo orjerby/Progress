@@ -1,26 +1,25 @@
-// const request = require('supertest')
-// const app = require('../src/app')
-// const Backlog = require('../src/models/backlog')
-// const { projectOneId, setupDatabase, userOne } = require('./fixtures/db')
+const request = require('supertest')
+const app = require('../src/app')
+const Backlog = require('../src/models/backlog')
+const { projectOne, setupDatabase, userOne } = require('./fixtures/db')
 
-// beforeEach(setupDatabase)
+beforeEach(setupDatabase)
 
-// describe('Backlogs', () => {
-//     describe('Read', () => {
-//         test('Should not read backlog without projectId query', async () => {
-//             const response = await request(app)
-//                 .get(`/backlogs`)
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send()
-//                 .expect(400)
-//         })
+describe('Backlogs', () => {
+    describe('Read', () => {
+        test('Should not read backlog as unauthenticated user', async () => {
+            await request(app)
+                .get(`/backlogs/projects/${projectOne._id}`)
+                .send()
+                .expect(401)
+        })
 
-//         test('Should read backlog', async () => {
-//             const response = await request(app)
-//                 .get(`/backlogs?projectId=${projectOneId}`)
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send()
-//                 .expect(200)
-//         })
-//     })
-// })
+        test('Should read backlog', async () => {
+            await request(app)
+                .get(`/backlogs/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send()
+                .expect(200)
+        })
+    })
+})

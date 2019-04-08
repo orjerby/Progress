@@ -1,154 +1,162 @@
-// const request = require('supertest')
-// const app = require('../src/app')
-// const Sprint = require('../src/models/sprint')
-// const { projectOneId, sprintOne, sprintOneId, setupDatabase, userOne } = require('./fixtures/db')
+const request = require('supertest')
+const app = require('../src/app')
+const Sprint = require('../src/models/sprint')
+const { projectOne, sprintOne, userOne, userTwo, userThree, setupDatabase } = require('./fixtures/db')
 
-// beforeEach(setupDatabase)
+beforeEach(setupDatabase)
 
-// describe('Sprints', () => {
-//     describe('Create', () => {
-//         test('Should not create sprint without properties', async () => {
-//             await request(app)
-//                 .post('/sprints')
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send({})
-//                 .expect(400)
-//         })
+describe('Sprints', () => {
+    describe('Create', () => {
+        test('Should not create sprint with _id property', async () => {
+            await request(app)
+                .post(`/sprints/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send({
+                    _id: "111111111111111111111111",
+                    name: "or's sprint"
+                })
+                .expect(400)
+        })
 
-//         test('Should not create sprint with invalid properties', async () => {
-//             await request(app)
-//                 .post('/sprints')
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send({
-//                     projectId: projectOneId,
-//                     description: "My first sprint.",
-//                     createdAt: new Date().getTime()
-//                 })
-//                 .expect(400)
-//         })
+        test('Should not create sprint without name property', async () => {
+            await request(app)
+                .post(`/sprints/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send({
+                    description: "My first sprint."
+                })
+                .expect(400)
+        })
 
-//         test('Should not create sprint without projectId property', async () => {
-//             await request(app)
-//                 .post('/sprints')
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send({
-//                     description: "My first sprint."
-//                 })
-//                 .expect(400)
-//         })
+        test("Should not create sprint as not project's owner", async () => {
+            await request(app)
+                .post(`/sprints/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .send({
+                    name: "or's sprint",
+                    description: "My first sprint."
+                })
+                .expect(404) // didn't find the project for this user
+        })
 
-//         test('Should create sprint', async () => {
-//             const response = await request(app)
-//                 .post('/sprints')
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send({
-//                     projectId: projectOneId,
-//                     description: "My first sprint."
-//                 })
-//                 .expect(201)
-//             const sprint = await Sprint.findById(response.body._id)
-//             expect(sprint).not.toBeNull()
-//             expect(sprint.projectId).toEqual(projectOneId)
-//             expect(sprint.description).toEqual("My first sprint.")
-//         })
-//     })
+        test('Should create sprint', async () => {
+            const response = await request(app)
+                .post(`/sprints/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send({
+                    name: "or's sprint",
+                    description: "My first sprint."
+                })
+                .expect(201)
+            const sprint = await Sprint.findById(response.body._id)
+            expect(sprint).not.toBeNull()
+            expect(sprint.projectId).toEqual(projectOne._id)
+            expect(sprint.description).toEqual("My first sprint.")
+        })
+    })
 
-//     describe('Read', () => {
-//         test('Should not read sprints without projectId query', async () => {
-//             await request(app)
-//                 .get(`/sprints`)
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send()
-//                 .expect(400)
-//         })
+    describe('Read', () => {
+        test("Should not read sprints for project as not project's member", async () => {
+            await request(app)
+                .get(`/sprints/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userThree.token[0].token}`)
+                .send()
+                .expect(404) // didn't find the project for this user
+        })
 
-//         test('Should read sprints for project', async () => {
-//             const response = await request(app)
-//                 .get(`/sprints?projectId=${projectOneId}`)
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send()
-//                 .expect(200)
-//             expect(response.body.length).toEqual(2)
-//         })
-//     })
+        test('Should read sprints for project', async () => {
+            const response = await request(app)
+                .get(`/sprints/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send()
+                .expect(200)
+            expect(response.body.length).toEqual(1)
+        })
+    })
+    
+    describe('Update', () => {
+        test('Should not update sprint without properties', async () => {
+            await request(app)
+                .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send({})
+                .expect(400)
+            const sprint = await Sprint.findById(sprintOne._id)
+            expect(sprint.name).toEqual(sprintOne.name)
+        })
 
-//     describe('Update', () => {
-//         test('Should not update sprint without properties', async () => {
-//             await request(app)
-//                 .patch(`/sprints/${sprintOneId}?projectId=${projectOneId}`)
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send({})
-//                 .expect(400)
-//             const sprint = await Sprint.findById(sprintOneId)
-//             expect(sprint).not.toBeNull()
-//             expect(sprint.description).toEqual(sprintOne.description)
-//         })
+        test('Should not update sprint with _id property', async () => {
+            await request(app)
+                .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send({
+                    _id: "111111111111111111111111"
+                })
+                .expect(400)
+            const sprint = await Sprint.findById(sprintOne._id)
+            expect(sprint.name).toEqual(sprintOne.name)
+        })
 
-//         test('Should not update sprint with invalid properties', async () => {
-//             await request(app)
-//                 .patch(`/sprints/${sprintOneId}?projectId=${projectOneId}`)
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send({
-//                     _id: "111111111111111111111111"
-//                 })
-//                 .expect(400)
-//             const sprint = await Sprint.findById(sprintOneId)
-//             expect(sprint).not.toBeNull()
-//             expect(sprint.description).toEqual(sprintOne.description)
-//         })
+        test('Should not update sprint with empty name', async () => {
+            await request(app)
+                .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send({
+                    name: ""
+                })
+                .expect(400)
+            const sprint = await Sprint.findById(sprintOne._id)
+            expect(sprint.name).toEqual(sprintOne.name)
+        })
 
-//         test('Should not update sprint with empty description', async () => {
-//             await request(app)
-//                 .patch(`/sprints/${sprintOneId}?projectId=${projectOneId}`)
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send({
-//                     description: ""
-//                 })
-//                 .expect(400)
-//             const sprint = await Sprint.findById(sprintOneId)
-//             expect(sprint).not.toBeNull()
-//             expect(sprint.description).toEqual(sprintOne.description)
-//         })
+        test("Should not update sprint as not project's owner", async () => {
+            await request(app)
+                .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .send({
+                    name: "or's updated sprint",
+                    description: "My first updated sprint."
+                })
+                .expect(404) // didn't find the project for this user
+            const sprint = await Sprint.findById(sprintOne._id)
+            expect(sprint.name).toEqual(sprintOne.name)
+            expect(sprint.description).toEqual(sprintOne.description)
+        })
 
-//         test('Should not update non-exist sprint', async () => {
-//             await request(app)
-//                 .patch(`/sprints/111111111111111111111111?projectId=${projectOneId}`)
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send({
-//                     description: "My first updated sprint."
-//                 })
-//                 .expect(404)
-//         })
+        test('Should update sprint', async () => {
+            await request(app)
+                .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send({
+                    name: "or's updated sprint",
+                    description: "My first updated sprint."
+                })
+                .expect(200)
+            const sprint = await Sprint.findById(sprintOne._id)
+            expect(sprint.name).toEqual("or's updated sprint")
+            expect(sprint.description).toEqual("My first updated sprint.")
+        })
+    })
 
-//         test('Should update sprint', async () => {
-//             await request(app)
-//                 .patch(`/sprints/${sprintOneId}?projectId=${projectOneId}`)
-//                 .set('Authorization', `Bearer ${userOne.token[0].token}`)
-//                 .send({
-//                     description: "My first updated sprint."
-//                 })
-//                 .expect(200)
-//             const sprint = await Sprint.findById(sprintOneId)
-//             expect(sprint).not.toBeNull()
-//             expect(sprint.description).toEqual("My first updated sprint.")
-//         })
-//     })
+    describe('Delete', () => {
+        test("Should not delete sprint as not the project's owner", async () => {
+            await request(app)
+                .delete(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .send()
+                .expect(404) // didn't find the project for this user
+            const sprint = await Sprint.findById(sprintOne._id)
+            expect(sprint).not.toBeNull()
+        })
 
-//     // describe('Delete', () => {
-//     //     test('Should not delete non-exist sprint', async () => {
-//     //         await request(app)
-//     //             .delete('/sprints/111111111111111111111111')
-//     //             .send()
-//     //             .expect(404)
-//     //     })
-
-//     //     test('Should delete sprint', async () => {
-//     //         await request(app)
-//     //             .delete(`/sprints/${sprintOneId}`)
-//     //             .send()
-//     //             .expect(200)
-//     //         const sprint = await Sprint.findById(sprintOneId)
-//     //         expect(sprint).toBeNull()
-//     //     })
-//     // })
-// })
+        test('Should delete sprint', async () => {
+            await request(app)
+                .delete(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
+                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .send()
+                .expect(200)
+            const sprint = await Sprint.findById(sprintOne._id)
+            expect(sprint).toBeNull()
+        })
+    })
+})

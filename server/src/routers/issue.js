@@ -41,7 +41,7 @@ router.post('/issues/:_id/transfer/sprints/:sprintId/projects/:projectId', auth,
 
         // --- push the deleted issue to sprint (with new _id for the issue that we keep for later) and get the whole document back
         let newId = new mongoose.Types.ObjectId()
-        result = await Sprint.findOneAndUpdate({ _id: sprintId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'todo']), _id: newId, updatedAt: new Date().getTime() } } }, { new: true, runValidators: true }).session(session)
+        result = await Sprint.findOneAndUpdate({ _id: sprintId }, { $push: { issue: { ..._.pick(deletedIssue, ['name', 'description', 'createdAt', 'todo']), _id: newId, updatedAt: new Date().getTime() } } }, { new: true, runValidators: true }).session(session)
         if (!result) {
             await session.abortTransaction()
             return res.status(404).send("couldn't find sprint")
@@ -73,8 +73,8 @@ router.post('/issues/:_id/transfer/sprints/:sprintId/projects/:projectId', auth,
 
 })
 
-router.post('/issues/:_id/transfer/backlogs/:backlogId/projects/:projectId', auth, async (req, res) => {
-    const { _id, backlogId, projectId } = req.params
+router.post('/issues/:_id/transfer/backlogs/projects/:projectId', auth, async (req, res) => {
+    const { _id, projectId } = req.params
 
     let result // data that come back from mongo as an answer
     const session = await mongoose.startSession() // start an session for transaction
@@ -101,7 +101,7 @@ router.post('/issues/:_id/transfer/backlogs/:backlogId/projects/:projectId', aut
         })
 
         let newId = new mongoose.Types.ObjectId()
-        result = await Backlog.findOneAndUpdate({ _id: backlogId }, { $push: { issue: { ..._.pick(deletedIssue, ['description', 'createdAt', 'todo']), _id: newId, updatedAt: new Date().getTime() } } }, { new: true, runValidators: true }).session(session)
+        result = await Backlog.findOneAndUpdate({ projectId }, { $push: { issue: { ..._.pick(deletedIssue, ['name', 'description', 'createdAt', 'todo']), _id: newId, updatedAt: new Date().getTime() } } }, { new: true, runValidators: true }).session(session)
         if (!result) {
             await session.abortTransaction()
             return res.status(404).send("couldn't find backlog")

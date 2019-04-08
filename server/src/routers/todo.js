@@ -174,7 +174,6 @@ router.patch('/todos/:_id/issues/:issueId/sprints/projects/:projectId', auth, as
             return res.status(404).send("couldn't find todo") // we could just look for it in the beginning but then it will be much slower
         }
     } catch (e) {
-        console.log(e)
         res.status(400).send(e)
     }
 })
