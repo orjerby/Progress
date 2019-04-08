@@ -12,7 +12,7 @@ router.post('/todos/issues/:issueId/sprints/projects/:projectId', auth, async (r
     const todo = req.body
 
     const updates = Object.keys(todo)
-    const allowedUpdates = ['description', 'status', 'priority', 'userId']
+    const allowedUpdates = ['name', 'description', 'status', 'priority', 'userId']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -53,7 +53,7 @@ router.post('/todos/issues/:issueId/backlogs/projects/:projectId', auth, async (
     const todo = req.body
 
     const updates = Object.keys(todo)
-    const allowedUpdates = ['description', 'status', 'priority', 'userId']
+    const allowedUpdates = ['name', 'description', 'status', 'priority', 'userId']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -112,9 +112,9 @@ router.patch('/todos/:_id/issues/:issueId/sprints/projects/:projectId', auth, as
 
         const updates = Object.keys(todo)
         let allowedUpdates
-        
+
         if (ownerUpdate) {
-            allowedUpdates = ['description', 'status', 'priority', 'userId']
+            allowedUpdates = ['name', 'description', 'status', 'priority', 'userId']
 
             arrayFilters = [{ "inner._id": _id }]
         } else {
@@ -125,7 +125,7 @@ router.patch('/todos/:_id/issues/:issueId/sprints/projects/:projectId', auth, as
 
             arrayFilters = [{ "inner._id": _id, "$or": [{ "inner.userId": null }, { "inner.userId": req.user._id }] }]
         }
-        
+
         const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
         if (!isValidOperation) {
@@ -204,7 +204,7 @@ router.patch('/todos/:_id/issues/:issueId/backlogs/projects/:projectId', auth, a
         let allowedUpdates
 
         if (ownerUpdate) {
-            allowedUpdates = ['description', 'status', 'priority', 'userId']
+            allowedUpdates = ['name', 'description', 'status', 'priority', 'userId']
 
             arrayFilters = [{ "inner._id": _id }]
         } else {

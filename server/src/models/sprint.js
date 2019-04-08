@@ -7,6 +7,15 @@ const sprintSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    description: {
+        type: String,
+        trim: true
+    },
     openAt: {
         type: Date,
         default: moment().format()
@@ -14,11 +23,6 @@ const sprintSchema = new mongoose.Schema({
     endAt: {
         type: Date,
         default: moment().add(2, 'w').format()
-    },
-    description: {
-        type: String,
-        trim: true,
-        required: true
     },
     createdAt: {
         type: Date,
@@ -30,10 +34,14 @@ const sprintSchema = new mongoose.Schema({
     },
     issue: [
         {
+            name: {
+                type: String,
+                required: true,
+                trim: true
+            },
             description: {
                 type: String,
-                trim: true,
-                required: true
+                trim: true
             },
             createdAt: {
                 type: Date,
@@ -45,10 +53,14 @@ const sprintSchema = new mongoose.Schema({
             },
             todo: [
                 {
+                    name: {
+                        type: String,
+                        required: true,
+                        trim: true
+                    },
                     description: {
                         type: String,
-                        trim: true,
-                        required: true
+                        trim: true
                     },
                     status: {
                         type: String,
@@ -71,7 +83,7 @@ const sprintSchema = new mongoose.Schema({
                     updatedAt: {
                         type: Date,
                         default: moment().format()
-                    },
+                    }
                 }
             ]
         }

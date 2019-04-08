@@ -8,10 +8,6 @@ const router = express.Router()
 router.get('/backlogs/projects/:projectId', auth, async (req, res) => {
     const { projectId } = req.params
 
-    if (!projectId) {
-        return res.status(400).send("you must include projectId in the query")
-    }
-
     try {
         const project = await Project.findOne({ _id: projectId, "user.userId": req.user._id })
         if (!project) {

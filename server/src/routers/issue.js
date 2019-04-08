@@ -136,7 +136,7 @@ router.post('/issues/backlogs/projects/:projectId', auth, async (req, res) => {
     const { projectId } = req.params
 
     const updates = Object.keys(issue)
-    const allowedUpdates = ['description']
+    const allowedUpdates = ['name', 'description']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -171,7 +171,7 @@ router.patch('/issues/:_id/sprints/projects/:projectId', auth, async (req, res) 
     const issue = req.body // the updated issue
 
     const updates = Object.keys(issue)
-    const allowedUpdates = ['description']
+    const allowedUpdates = ['name', 'description']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -227,7 +227,7 @@ router.patch('/issues/:_id/backlogs/projects/:projectId', auth, async (req, res)
     const issue = req.body // the updated issue
 
     const updates = Object.keys(issue)
-    const allowedUpdates = ['description']
+    const allowedUpdates = ['name', 'description']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {

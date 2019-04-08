@@ -10,7 +10,7 @@ router.post('/sprints/projects/:projectId', auth, async (req, res) => {
     const { projectId } = req.params
 
     const updates = Object.keys(sprint)
-    const allowedUpdates = ['description']
+    const allowedUpdates = ['name', 'description', 'openAt', 'endDate']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -53,7 +53,7 @@ router.patch('/sprints/:_id/projects/:projectId', auth, async (req, res) => {
     const sprint = req.body // the updated sprint
 
     const updates = Object.keys(sprint)
-    const allowedUpdates = ['description']
+    const allowedUpdates = ['name', 'description', 'openAt', 'endDate']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {

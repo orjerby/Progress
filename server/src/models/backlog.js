@@ -9,10 +9,14 @@ const backlogSchema = new mongoose.Schema({
     },
     issue: [
         {
+            name: {
+                type: String,
+                required: true,
+                trim: true
+            },
             description: {
                 type: String,
-                trim: true,
-                required: true
+                trim: true
             },
             createdAt: {
                 type: Date,
@@ -24,10 +28,14 @@ const backlogSchema = new mongoose.Schema({
             },
             todo: [
                 {
+                    name: {
+                        type: String,
+                        required: true,
+                        trim: true
+                    },
                     description: {
                         type: String,
-                        trim: true,
-                        required: true
+                        trim: true
                     },
                     status: {
                         type: String,
@@ -50,7 +58,7 @@ const backlogSchema = new mongoose.Schema({
                     updatedAt: {
                         type: Date,
                         default: moment().format()
-                    },
+                    }
                 }
             ]
         }
