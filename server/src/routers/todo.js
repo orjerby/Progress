@@ -113,18 +113,22 @@ router.patch('/todos/:_id', auth, async (req, res) => {
     // this is for the $set next. set the property to the new one
     // example: "issue.$.todo.$[inner].${description}: myDescription"
     updates.forEach((update) => updatesObj[`issue.$.todo.$[inner].${update}`] = todo[update])
-    updatesObj['issue.$.todo.$[inner].updatedAt'] = new Date().getTime()
 
     if (Object.keys(updatesObj).length === 0) { // must include this 'if' unless we want to get another error from the findOneAndUpdate function
         return res.status(400).send('you must include at least one property to update')
     }
 
+    updatesObj['issue.$.todo.$[inner].updatedAt'] = new Date().getTime()
+
     try {
         let project
+        let arrayFilters
         if (fullUpdate) {
             project = await Project.findOne({ _id: projectId, ownerId: req.user._id })
+            arrayFilters = [{ "inner._id": _id }]
         } else {
             project = await Project.findOne({ _id: projectId, 'user.userId': req.user._id })
+            arrayFilters = [{ "inner._id": _id, "$or": [{ "inner.userId": null }, { "inner.userId": null }] }]
         }
 
         if (!project) {
@@ -138,14 +142,14 @@ router.patch('/todos/:_id', auth, async (req, res) => {
                 // use $[random] (unlimited times) to get inside arrays and then you must use arrayFilters to guide the 'random' into the correct object in the array
                 // returns the whole document after the update
                 $set: updatesObj
-            }, { arrayFilters: [{ "inner._id": _id }], new: true, runValidators: true })
+            }, { arrayFilters: arrayFilters, new: true, runValidators: true })
         } else if (parent === 'backlog') {
             result = await Backlog.findOneAndUpdate({ "issue._id": issueId }, {
                 // use .$ (max one time) to get into the correct object in array by the conditions above
                 // use $[random] (unlimited times) to get inside arrays and then you must use arrayFilters to guide the 'random' into the correct object in the array
                 // returns the whole document after the update
                 $set: updatesObj
-            }, { arrayFilters: [{ "inner._id": _id }], new: true, runValidators: true })
+            }, { arrayFilters: arrayFilters, new: true, runValidators: true })
         }
 
         if (!result) {
