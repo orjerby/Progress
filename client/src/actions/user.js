@@ -1,5 +1,5 @@
 import progress from '../apis/progress'
-import { SET_ACTION_LOADING, UNSET_ACTION_LOADING, SET_USER, SET_FETCH_LOADING, UNSET_FETCH_LOADING } from "./types";
+import { SET_ACTION_LOADING, UNSET_ACTION_LOADING, SET_USER, SET_FETCH_LOADING, UNSET_FETCH_LOADING, UNSET_USER } from "./types";
 
 export const loginUser = formValues => async dispatch => {
     dispatch({ type: SET_ACTION_LOADING })
@@ -45,5 +45,20 @@ export const fetchUserByToken = token => async dispatch => {
         console.log(e)
     } finally {
         dispatch({ type: UNSET_FETCH_LOADING })
+    }
+}
+
+export const logoutUser = token => async dispatch => {
+    dispatch({ type: SET_ACTION_LOADING })
+    try {
+        await progress.post('/users/logout', null, { headers: { 'Authorization': `Bearer ${token}` } })
+        dispatch({
+            type: UNSET_USER
+        })
+        localStorage.removeItem('token')
+    } catch (e) {
+        console.log(e)
+    } finally {
+        dispatch({ type: UNSET_ACTION_LOADING })
     }
 }
