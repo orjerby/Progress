@@ -130,4 +130,26 @@ router.delete('/projects/:_id', auth, async (req, res) => {
     }
 })
 
+router.post('/projects/:_id/invite/:userId', auth, async (req, res) => {
+    const { _id, userId } = req.params
+
+    try {
+        const project = await Project.findOne({ _id, ownerId: req.user._id })
+        if (!project) {
+            return res.status(404).send({ error: "project wasn't found" })
+        }
+
+        const user = project.user.filter(u => u.userId === userId)
+        if (user) {
+            return res.status(400).send({ error: "user is already project member" })
+        }
+        
+        project.user.push({ userId })
+        const result = await project.save()
+        res.send(result)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
 module.exports = router
