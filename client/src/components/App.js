@@ -11,17 +11,18 @@ import BacklogPage from './BacklogPage'
 import Menu from './menu/Menu'
 import Item from './menu/Item'
 import ProjectItem from './menu/ProjectItem'
-import { setUser } from '../actions/user'
+import { fetchUserByToken } from '../actions/user'
 
 import '../styles/menu.css'
 import Home from './Home';
 
 class App extends React.Component {
     componentDidMount = () => {
-        const res = Math.round(Math.random())
+        const { fetchUserByToken } = this.props
 
-        if (res === 0) { // check local storage for user
-            this.props.setUser()
+        const token = localStorage.getItem('token')
+        if (token) {
+            fetchUserByToken(token)
         }
     }
 
@@ -71,4 +72,4 @@ function mapStateToProps({ userReducer }) {
     }
 }
 
-export default connect(mapStateToProps, { setUser })(App)
+export default connect(mapStateToProps, { fetchUserByToken })(App)

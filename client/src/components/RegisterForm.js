@@ -1,5 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux'
+
 import CustomReduxForm from './CustomReduxForm';
+import { registerUser } from '../actions/user'
 
 class RegisterForm extends React.Component {
     getFields() {
@@ -25,8 +28,10 @@ class RegisterForm extends React.Component {
         ];
     }
 
-    handleFormSubmit(values) {
-        console.log(values)
+    handleFormSubmit = (values) => {
+        const { registerUser } = this.props
+
+        registerUser(values)
     }
 
     render() {
@@ -43,4 +48,4 @@ class RegisterForm extends React.Component {
     }
 }
 
-export default RegisterForm;
+export default connect(null, { registerUser })(RegisterForm)

@@ -1,26 +1,31 @@
 import React from 'react';
+import { connect } from 'react-redux'
+
 import CustomReduxForm from './CustomReduxForm';
+import { loginUser } from '../actions/user'
 
 class LoginForm extends React.Component {
   getFields() {
     return [
       {
-        name : 'email',
-        type : 'email',
-        label : 'Email',
-        mandatory : true
+        name: 'email',
+        type: 'email',
+        label: 'Email',
+        mandatory: true
       },
       {
-        name : 'password',
-        type : 'password',
-        label : 'Password',
-        mandatory : true
+        name: 'password',
+        type: 'password',
+        label: 'Password',
+        mandatory: true
       }
     ];
   }
 
-  handleFormSubmit(values) {
-    console.log(values)
+  handleFormSubmit = values => {
+    const { loginUser } = this.props
+
+    loginUser(values)
   }
 
   render() {
@@ -37,4 +42,4 @@ class LoginForm extends React.Component {
   }
 }
 
-export default LoginForm;
+export default connect(null, { loginUser })(LoginForm)
