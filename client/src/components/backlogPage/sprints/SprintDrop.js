@@ -3,8 +3,8 @@ import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
 
 import SprintIssue from './SprintIssue'
-import { setDragged } from '../actions/issues'
-import Empty from './Empty';
+import { setDragged } from '../../../actions/issues'
+import Empty from '../../common/Empty';
 
 class SprintDrop extends React.Component {
 
@@ -24,7 +24,7 @@ class SprintDrop extends React.Component {
             borderStyle = 'dashed'
             borderColor = 'green'
         }
-
+        
         let foundIssues = false
         let issuesElement = issues.map(i => {
             if (sprint._id === i.sprintId) {

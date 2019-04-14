@@ -18,7 +18,7 @@ class App extends React.Component {
     }
 
     render() {
-        const { isLoggedIn, isLoading } = this.props
+        const { isLoggedIn, autoLoggedIn } = this.props
 
         return (
             <DragDropContextProvider backend={HTML5Backend}>
@@ -29,19 +29,19 @@ class App extends React.Component {
                         {/* our routes. Switch only render the first route that matches the url */}
                         <Switch>
                             <Route path="/" exact render={props => {
-                                if (!isLoading && isLoggedIn) {
+                                if (autoLoggedIn && isLoggedIn) {
                                     return <Redirect to='/dashboard' />
                                 }
-                                if (!isLoading && !isLoggedIn) {
+                                if (autoLoggedIn && !isLoggedIn) {
                                     return <Home {...props} />
                                 }
                             }}
                             />
                             <Route path="/dashboard" render={props => {
-                                if (!isLoading && isLoggedIn) {
+                                if (autoLoggedIn && isLoggedIn) {
                                     return <Dashboard {...props} />
                                 }
-                                if (!isLoading && !isLoggedIn) {
+                                if (autoLoggedIn && !isLoggedIn) {
                                     return <Redirect to='/' />
                                 }
                             }} />
@@ -59,7 +59,7 @@ function mapStateToProps({ userReducer, apiReducer }) {
     return {
         isLoggedIn: userReducer ? true : false,
         token: userReducer ? userReducer.token : null,
-        isLoading: apiReducer.loginLoading
+        autoLoggedIn: apiReducer.autoLoggedIn
     }
 }
 

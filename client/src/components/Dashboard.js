@@ -7,7 +7,7 @@ import { Container } from 'react-bootstrap'
 import { FaSave, FaStar, FaTableTennis } from "react-icons/fa";
 import history from '../history'
 import { Route, Switch } from 'react-router-dom'
-import Backlog from './Backlog';
+import BacklogPage from './backlogPage/BacklogPage';
 import { logoutUser } from '../actions/user'
 
 class Dashboard extends React.Component {
@@ -28,7 +28,7 @@ class Dashboard extends React.Component {
                     <Container fluid>
                         <Switch>
                             <Route path={`${match.url}`} exact component={props => <h1>Home</h1>} />
-                            <Route path={`${match.url}/backlog`} exact component={Backlog} />
+                            <Route path={`${match.url}/backlog`} exact component={BacklogPage} />
                             {/* <Route path={`${match.url}/:projectId`} exact component={props => <h1>{props.match.params.projectId}</h1>} /> */}
                             <Route component={props => <h1>Page not found</h1>} />
                         </Switch>

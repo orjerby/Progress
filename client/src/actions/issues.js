@@ -21,7 +21,7 @@ import progress from '../apis/progress'
 // Then send API req to transfer and get back the transfered issue with new _id
 // Then dispatch action to update the transfered issue
 // In case of error dispatch action to rollback the transfer
-export const transferIssueToSprint = (issue, sprintId) => async (dispatch, getState) => {
+export const transferIssueToSprint = (issue, sprintId, projectId) => async (dispatch, getState) => {
     const { backlogIssueReducer, sprintIssueReducer } = getState() // get the reducers before the change (for rollback)
 
     dispatch({
@@ -39,7 +39,7 @@ export const transferIssueToSprint = (issue, sprintId) => async (dispatch, getSt
     dispatch({ type: SET_ACTION_LOADING })
 
     try {
-        const response = await progress.post('/issues?transferTo=sprint', { sprintId, issueId: issue._id })
+        const response = await progress.post(`/issues/${issue._id}/transfer/sprints/${sprintId}/projects/${projectId}`)
         const issueWithoutTodoProperty = _.omit(response.data, 'todo')
         const issueWithSprintIdProperty = { ...issueWithoutTodoProperty, sprintId }
 
@@ -68,7 +68,7 @@ export const transferIssueToSprint = (issue, sprintId) => async (dispatch, getSt
 // Then send API req to transfer and get back the transfered issue with new _id
 // Then dispatch action to change just the _id we transfered before
 // In case of error dispatch action to rollback the transfer
-export const transferIssueToBacklog = (issue, backlogId) => async (dispatch, getState) => {
+export const transferIssueToBacklog = (issue, backlogId, projectId) => async (dispatch, getState) => {
     const { backlogIssueReducer, sprintIssueReducer } = getState() // get the reducers before the transfer (for rollback)
     const issueWithoutSprintIdProperty = _.omit(issue, 'sprintId')
 
@@ -85,7 +85,7 @@ export const transferIssueToBacklog = (issue, backlogId) => async (dispatch, get
     dispatch({ type: SET_ACTION_LOADING })
 
     try {
-        const response = await progress.post('/issues?transferTo=backlog', { backlogId, issueId: issue._id })
+        const response = await progress.post(`/issues/${issue._id}/transfer/backlogs/projects/${projectId}`)
         const issueWithoutTodoProperty = _.omit(response.data, 'todo')
 
         dispatch({
@@ -107,13 +107,13 @@ export const transferIssueToBacklog = (issue, backlogId) => async (dispatch, get
     }
 }
 
-export const createBacklogIssue = (issue, backlogId) => async (dispatch, getState) => {
+export const createBacklogIssue = (issue, projectId) => async (dispatch, getState) => {
     const { backlogIssueReducer } = getState() // get the reducer before the creation (for rollback)
     const issueId = Math.floor(Math.random() * 100)
     dispatch({ type: CREATE_BACKLOG_ISSUE, payload: { ...issue, _id: issueId } })
     dispatch({ type: SET_ACTION_LOADING })
     try {
-        const response = await progress.post('/issues', { backlogId, issue })
+        const response = await progress.post(`/issues/backlogs/projects/${projectId}`, issue)
         const issueWithoutTodoProperty = _.omit(response.data, 'todo')
         dispatch({
             type: UPDATE_BACKLOG_ISSUE,
@@ -161,12 +161,12 @@ export const deleteBacklogIssue = issueId => async (dispatch, getState) => {
     }
 }
 
-export const updateBacklogIssue = (issue, issueId) => async (dispatch, getState) => {
+export const updateBacklogIssue = (issue, issueId, projectId) => async (dispatch, getState) => {
     const { backlogIssueReducer } = getState() // get the reducer before the creation (for rollback)
     dispatch({ type: UPDATE_BACKLOG_ISSUE, payload: { issue, issueId } })
     dispatch({ type: SET_ACTION_LOADING })
     try {
-        await progress.patch(`/issues/${issueId}?parent=backlog`, issue)
+        await progress.patch(`/issues/${issueId}/backlogs/projects/${projectId}`, issue)
     } catch (e) {
         dispatch({
             type: ROLLBACK_BACKLOG_ISSUE,
@@ -177,12 +177,12 @@ export const updateBacklogIssue = (issue, issueId) => async (dispatch, getState)
     }
 }
 
-export const updateSprintIssue = (issue, issueId) => async (dispatch, getState) => {
+export const updateSprintIssue = (issue, issueId, projectId) => async (dispatch, getState) => {
     const { sprintIssueReducer } = getState() // get the reducer before the creation (for rollback)
     dispatch({ type: UPDATE_SPRINT_ISSUE, payload: { issue, issueId } })
     dispatch({ type: SET_ACTION_LOADING })
     try {
-        await progress.patch(`/issues/${issueId}?parent=sprint`, issue)
+        await progress.patch(`/issues/${issueId}/sprints/projects/${projectId}`, issue)
     } catch (e) {
         dispatch({
             type: ROLLBACK_SPRINT_ISSUE,

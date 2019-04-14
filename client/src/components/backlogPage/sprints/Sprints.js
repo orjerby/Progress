@@ -2,14 +2,14 @@ import React from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
 
-import { transferIssueToSprint } from '../actions/issues'
+import { transferIssueToSprint } from '../../../actions/issues'
 import SprintDrop from './SprintDrop'
-import Accordion from './Accordion';
-import Description from './Description';
+import Accordion from '../../common/Accordion';
+import Description from '../../common/Description';
 
 class SprintList extends React.Component {
     render() {
-        const { sprints, issues, transferIssueToSprint, draggedIssue } = this.props
+        const { sprints, issues, transferIssueToSprint, draggedIssue, projectId } = this.props
 
         return (
             <>
@@ -18,12 +18,12 @@ class SprintList extends React.Component {
                         return <Accordion
                             key={s._id}
                             description={<Description
-                                text={s.description}
+                                text={s.name}
                                 subText={issues.filter(i => i.sprintId === s._id).length + ' issues'}
                                 footer={`${moment().format("DD/MMM/YY hh:mm a")} • ${moment().add(3, 'w').format("DD/MMM/YY hh:mm a")}`}
                             />}
                         >
-                            <SprintDrop sprint={s} handleDrop={(sprintId) => transferIssueToSprint(draggedIssue, sprintId)} />
+                            <SprintDrop sprint={s} handleDrop={(sprintId) => transferIssueToSprint(draggedIssue, sprintId, projectId)} />
                         </Accordion>
                     })
                 }
@@ -36,7 +36,7 @@ function mapStateToProps({ sprintReducer, draggedReducer, activeProjectReducer, 
     return {
         sprints: sprintReducer,
         draggedIssue: draggedReducer,
-        activeProject: activeProjectReducer,
+        projectId: activeProjectReducer._id,
         issues: sprintIssueReducer
     }
 }

@@ -1,9 +1,9 @@
-import { SET_ACTION_LOADING, UNSET_ACTION_LOADING, SET_FETCH_LOADING, UNSET_FETCH_LOADING, SET_LOGGING_LOADING, UNSET_LOGGING_LOADING } from '../actions/types'
+import { SET_ACTION_LOADING, UNSET_ACTION_LOADING, SET_FETCH_LOADING, UNSET_FETCH_LOADING, SET_AUTO_LOGGED_IN } from '../actions/types'
 
 const INITAL_STATE = {
     actionLoading: false,
     fetchLoading: false,
-    loginLoading: false
+    autoLoggedIn: false
 }
 
 export default (state = INITAL_STATE, action) => {
@@ -21,11 +21,8 @@ export default (state = INITAL_STATE, action) => {
         case UNSET_ACTION_LOADING:
             return { ...state, actionLoading: false }
 
-        case SET_LOGGING_LOADING:
-            return { ...state, loginLoading: true }
-
-        case UNSET_LOGGING_LOADING:
-            return { ...state, loginLoading: false }
+        case SET_AUTO_LOGGED_IN:
+            return { ...state, autoLoggedIn: true }
 
         default:
             return state

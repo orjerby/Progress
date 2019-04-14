@@ -9,13 +9,14 @@ export const createSprint = (sprint, projectId) => async (dispatch, getState) =>
     dispatch({ type: CREATE_SPRINT, payload: { ...sprint, _id: sprintId } })
     dispatch({ type: SET_ACTION_LOADING })
     try {
-        const response = await progress.post('/sprints', { projectId, ...sprint })
+        const response = await progress.post(`/sprints/projects/${projectId}`, sprint)
         const sprintWithoutIssueProperty = _.omit(response.data, 'issue')
         dispatch({
             type: UPDATE_SPRINT,
             payload: { sprintId, sprint: sprintWithoutIssueProperty }
         })
     } catch (e) {
+        console.log(e.response)
         dispatch({
             type: ROLLBACK_SPRINT,
             payload: sprintReducer

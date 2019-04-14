@@ -4,8 +4,8 @@ import { DropTarget } from 'react-dnd'
 import PropTypes from 'prop-types'
 
 import BacklogIssue from './BacklogIssue'
-import { setDragged } from '../actions/issues'
-import Empty from './Empty';
+import { setDragged } from '../../../actions/issues'
+import Empty from '../../common/Empty';
 
 class BacklogDrop extends React.Component {
 

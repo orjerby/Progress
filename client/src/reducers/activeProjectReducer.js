@@ -1,4 +1,4 @@
-import { SET_ACTIVE_PROJECT, SET_BACKLOG } from '../actions/types'
+import { SET_ACTIVE_PROJECT, SET_BACKLOG, UNSET_ACTIVE_PROJECT } from '../actions/types'
 
 export default (state = null, action) => {
     switch (action.type) {
@@ -6,6 +6,8 @@ export default (state = null, action) => {
             return action.payload
         case SET_BACKLOG:
             return { ...state, backlogId: action.payload }
+        case UNSET_ACTIVE_PROJECT:
+            return null
         default:
             return state
     }

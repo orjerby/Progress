@@ -1,11 +1,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { transferIssueToBacklog } from '../actions/issues'
-import Backlog from './Backlog'
-import Sprints from './Sprints'
-import Title from './Title';
-import Search from './Search';
+import { transferIssueToBacklog } from '../../actions/issues'
+import Backlog from './backlog/Backlog'
+import Sprints from './sprints/Sprints'
+import Title from '../common/Title';
+import Search from '../common/Search';
 
 class BacklogPage extends React.Component {
 

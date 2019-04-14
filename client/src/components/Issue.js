@@ -3,32 +3,32 @@ import PropTypes from 'prop-types'
 
 export default class Issue extends React.Component {
     state = {
-        description: undefined
+        name: undefined
     }
 
     handleBlur = () => {
-        const { description } = this.state
-        const { initialDescription, handleChangeDescription } = this.props
+        const { name } = this.state
+        const { initialName, handleChangeName } = this.props
 
-        if (initialDescription !== description) {
-            handleChangeDescription(description)
+        if (initialName !== name) {
+            handleChangeName(name)
         }
 
-        this.setState({ description: undefined })
+        this.setState({ name: undefined })
     }
 
     handleChange = (e) => {
-        this.setState({ description: e.target.value })
+        this.setState({ name: e.target.value })
     }
 
     render() {
-        const { description } = this.state
-        const { initialDescription, Icon } = this.props
+        const { name } = this.state
+        const { initialName, Icon } = this.props
         const { handleBlur, handleChange } = this
 
         return (
             <div style={{ cursor: 'move', paddingLeft: 12, padding: 5, backgroundColor: 'white', borderWidth: 0.1, display: 'flex', borderStyle: 'solid', borderColor: 'aliceblue' }}
-                onDoubleClick={() => { this.setState({ description: initialDescription }); }}
+                onDoubleClick={() => { this.setState({ name: initialName }); }}
             >
 
                 {
@@ -37,10 +37,10 @@ export default class Issue extends React.Component {
                 }
 
                 {
-                    description ?
+                    name ?
                         <input
                             style={{ marginLeft: 10, height: 24 }}
-                            value={description}
+                            value={name}
                             onBlur={handleBlur}
                             onChange={handleChange}
                             autoFocus
@@ -51,7 +51,7 @@ export default class Issue extends React.Component {
                             }}
                         />
                         :
-                        <div style={{ marginLeft: 10 }}>{initialDescription}</div>
+                        <div style={{ marginLeft: 10 }}>{initialName}</div>
                 }
             </div>
         )
@@ -59,7 +59,7 @@ export default class Issue extends React.Component {
 }
 
 Issue.propTypes = {
-    initialDescription: PropTypes.string.isRequired,
-    handleChangeDescription: PropTypes.func.isRequired,
+    initialName: PropTypes.string.isRequired,
+    handleChangeName: PropTypes.func.isRequired,
     Icon: PropTypes.elementType
 }

@@ -21,7 +21,7 @@ class IssueForm extends React.Component {
       <form
         onSubmit={this.props.handleSubmit(this.onSubmit)}
       >
-        <Field name="description" component={this.renderInput} label="Enter description" />
+        <Field name="name" component={this.renderInput} label="Enter name" />
         <button>Submit</button>
       </form>
     );
@@ -31,8 +31,8 @@ class IssueForm extends React.Component {
 const validate = formValues => {
   const errors = {};
 
-  if (!formValues.description) {
-    errors.description = 'You must enter a description';
+  if (!formValues.name) {
+    errors.name = 'You must enter a name';
   }
 
   return errors;

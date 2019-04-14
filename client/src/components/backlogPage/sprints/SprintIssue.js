@@ -3,28 +3,28 @@ import { connect } from 'react-redux'
 import { DragSource } from 'react-dnd'
 import { FaTasks } from "react-icons/fa"
 
-import { deleteSprintIssue, updateSprintIssue } from '../actions/issues'
-import Issue from './Issue';
+import { deleteSprintIssue, updateSprintIssue } from '../../../actions/issues'
+import Issue from '../../Issue';
 
 class SprintIssue extends React.Component {
 
-    handleChangeDescription = (description) => {
-        const { updateSprintIssue, issue } = this.props
+    handleChangeName = (name) => {
+        const { updateSprintIssue, issue, projectId } = this.props
 
-        updateSprintIssue({ description }, issue._id)
+        updateSprintIssue({ name }, issue._id, projectId)
     }
 
     render() {
         const { issue, connectDragSource, isDragging } = this.props
-        const { handleChangeDescription } = this
+        const { handleChangeName } = this
 
         const opacity = isDragging ? 0 : 1
 
         return connectDragSource(
             <div style={{opacity}}>
                 <Issue
-                    initialDescription={issue.description}
-                    handleChangeDescription={handleChangeDescription}
+                    initialName={issue.name}
+                    handleChangeName={handleChangeName}
                     Icon={FaTasks}
                 />
             </div>
@@ -46,6 +46,12 @@ function collectToBacklog(connect, monitor) {
     }
 }
 
-const connector = connect(null, { deleteSprintIssue, updateSprintIssue })(SprintIssue)
+function mapStateToProps({activeProjectReducer}){
+    return {
+        projectId: activeProjectReducer._id
+    }
+}
+
+const connector = connect(mapStateToProps, { deleteSprintIssue, updateSprintIssue })(SprintIssue)
 
 export default DragSource('toBacklog', itemSource, collectToBacklog)(connector)

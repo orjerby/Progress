@@ -18,7 +18,7 @@ router.post('/users', async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true
         })
-        res.status(201).send({ user, token })
+        res.status(201).send(user)
     } catch (e) {
         res.status(400).send(e)
     }
@@ -31,7 +31,7 @@ router.post('/users/login', async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true
         })
-        res.send({ user, token })
+        res.send(user)
     } catch (e) {
         res.status(400).send()
     }
@@ -96,6 +96,7 @@ router.delete('/users/me', auth, async (req, res) => {
         await Backlog.deleteMany({ projectId: { $in: deletedProjectsIdArray } })
         await Sprint.deleteMany({ projectId: { $in: deletedProjectsIdArray } })
         await session.commitTransaction() // everything worked! commit the transaction
+        res.clearCookie('token')
         res.send(req.user)
     } catch (e) {
         await session.abortTransaction() // it didn't work, abort the transaction

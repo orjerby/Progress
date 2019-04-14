@@ -2,23 +2,23 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { FaPlus } from "react-icons/fa"
 
-import { createBacklogIssue, transferIssueToBacklog } from '../actions/issues'
-import { createSprint } from '../actions/sprints'
-import IssueForm from './IssueForm';
-import PopupHandle from './PopupHandle';
-import Description from './Description';
+import { createBacklogIssue, transferIssueToBacklog } from '../../../actions/issues'
+import { createSprint } from '../../../actions/sprints'
+import IssueForm from '../../IssueForm';
+import PopupHandle from '../../common/PopupHandle';
+import Description from '../../common/Description';
 import BacklogDrop from './BacklogDrop';
 
 class Backlog extends React.Component {
 
     handleTransferIssue = () => {
         const { draggedIssue, activeProject, transferIssueToBacklog } = this.props
-        transferIssueToBacklog(draggedIssue, activeProject.backlogId)
+        transferIssueToBacklog(draggedIssue, activeProject.backlogId, activeProject._id)
     }
 
     handleCreateIssue = (newIssue) => {
         const { activeProject, createBacklogIssue } = this.props
-        createBacklogIssue(newIssue, activeProject.backlogId)
+        createBacklogIssue(newIssue, activeProject._id)
     }
 
     handleCreateSprint = (newSprint) => {
