@@ -1,8 +1,8 @@
 import progress from '../apis/progress'
-import { SET_ACTION_LOADING, UNSET_ACTION_LOADING, SET_USER, SET_FETCH_LOADING, UNSET_FETCH_LOADING, UNSET_USER } from "./types";
+import { SET_USER, UNSET_USER, SET_LOGGING_LOADING, UNSET_LOGGING_LOADING } from "./types";
 
 export const loginUser = formValues => async dispatch => {
-    dispatch({ type: SET_ACTION_LOADING })
+    dispatch({ type: SET_LOGGING_LOADING })
     try {
         const response = await progress.post('/users/login', formValues)
         dispatch({
@@ -13,12 +13,12 @@ export const loginUser = formValues => async dispatch => {
     } catch (e) {
         console.log(e)
     } finally {
-        dispatch({ type: UNSET_ACTION_LOADING })
+        dispatch({ type: UNSET_LOGGING_LOADING })
     }
 }
 
 export const registerUser = formValues => async dispatch => {
-    dispatch({ type: SET_ACTION_LOADING })
+    dispatch({ type: SET_LOGGING_LOADING })
     try {
         const response = await progress.post('/users', formValues)
         dispatch({
@@ -29,12 +29,12 @@ export const registerUser = formValues => async dispatch => {
     } catch (e) {
         console.log(e.response)
     } finally {
-        dispatch({ type: UNSET_ACTION_LOADING })
+        dispatch({ type: UNSET_LOGGING_LOADING })
     }
 }
 
 export const fetchUserByToken = token => async dispatch => {
-    dispatch({ type: SET_FETCH_LOADING })
+    dispatch({ type: SET_LOGGING_LOADING })
     try {
         const response = await progress.get('/users/me', { headers: { 'Authorization': `Bearer ${token}` } })
         dispatch({
@@ -44,12 +44,12 @@ export const fetchUserByToken = token => async dispatch => {
     } catch (e) {
         console.log(e)
     } finally {
-        dispatch({ type: UNSET_FETCH_LOADING })
+        dispatch({ type: UNSET_LOGGING_LOADING })
     }
 }
 
 export const logoutUser = token => async dispatch => {
-    dispatch({ type: SET_ACTION_LOADING })
+    dispatch({ type: SET_LOGGING_LOADING })
     try {
         await progress.post('/users/logout', null, { headers: { 'Authorization': `Bearer ${token}` } })
         dispatch({
@@ -59,6 +59,6 @@ export const logoutUser = token => async dispatch => {
     } catch (e) {
         console.log(e)
     } finally {
-        dispatch({ type: UNSET_ACTION_LOADING })
+        dispatch({ type: UNSET_LOGGING_LOADING })
     }
 }

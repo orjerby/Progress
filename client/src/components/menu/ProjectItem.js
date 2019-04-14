@@ -2,7 +2,6 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import { fetchProjects, setActiveProject, fetchBacklogAndSprints } from '../../actions/projects'
-import history from '../../history'
 import Item from './Item'
 
 class ProjectItem extends React.Component {
@@ -22,7 +21,7 @@ class ProjectItem extends React.Component {
         return (
             <div>
                 <Item
-                    handleClick={() => history.push('/')}
+                    handleClick={this.props.handleClick}
                     handleOptionsClick={this.handleChooseProject}
                     picture='https://img.icons8.com/material/4ac144/256/twitter.png'
                     text='orjerby'
