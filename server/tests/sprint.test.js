@@ -10,7 +10,7 @@ describe('Sprints', () => {
         test('Should not create sprint with _id property', async () => {
             await request(app)
                 .post(`/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     _id: "111111111111111111111111",
                     name: "or's sprint"
@@ -21,7 +21,7 @@ describe('Sprints', () => {
         test('Should not create sprint without name property', async () => {
             await request(app)
                 .post(`/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     description: "My first sprint."
                 })
@@ -31,7 +31,7 @@ describe('Sprints', () => {
         test("Should not create sprint as not project's owner", async () => {
             await request(app)
                 .post(`/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send({
                     name: "or's sprint",
                     description: "My first sprint."
@@ -42,7 +42,7 @@ describe('Sprints', () => {
         test('Should create sprint', async () => {
             const response = await request(app)
                 .post(`/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: "or's sprint",
                     description: "My first sprint."
@@ -59,7 +59,7 @@ describe('Sprints', () => {
         test("Should not read sprints for project as not project's member", async () => {
             await request(app)
                 .get(`/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userThree.token[0].token}`)
+                .set('Cookie', [`token=${userThree.token[0].token}`])
                 .send()
                 .expect(404) // didn't find the project for this user
         })
@@ -67,7 +67,7 @@ describe('Sprints', () => {
         test('Should read sprints for project', async () => {
             const response = await request(app)
                 .get(`/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send()
                 .expect(200)
             expect(response.body.length).toEqual(1)
@@ -78,7 +78,7 @@ describe('Sprints', () => {
         test('Should not update sprint without properties', async () => {
             await request(app)
                 .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(400)
             const sprint = await Sprint.findById(sprintOne._id)
@@ -88,7 +88,7 @@ describe('Sprints', () => {
         test('Should not update sprint with _id property', async () => {
             await request(app)
                 .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     _id: "111111111111111111111111"
                 })
@@ -100,7 +100,7 @@ describe('Sprints', () => {
         test('Should not update sprint with empty name', async () => {
             await request(app)
                 .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: ""
                 })
@@ -112,7 +112,7 @@ describe('Sprints', () => {
         test("Should not update sprint as not project's owner", async () => {
             await request(app)
                 .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send({
                     name: "or's updated sprint",
                     description: "My first updated sprint."
@@ -126,7 +126,7 @@ describe('Sprints', () => {
         test('Should update sprint', async () => {
             await request(app)
                 .patch(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: "or's updated sprint",
                     description: "My first updated sprint."
@@ -142,7 +142,7 @@ describe('Sprints', () => {
         test("Should not delete sprint as not the project's owner", async () => {
             await request(app)
                 .delete(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send()
                 .expect(404) // didn't find the project for this user
             const sprint = await Sprint.findById(sprintOne._id)
@@ -152,7 +152,7 @@ describe('Sprints', () => {
         test('Should delete sprint', async () => {
             await request(app)
                 .delete(`/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send()
                 .expect(200)
             const sprint = await Sprint.findById(sprintOne._id)

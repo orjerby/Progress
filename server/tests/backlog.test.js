@@ -17,7 +17,7 @@ describe('Backlogs', () => {
         test('Should read backlog', async () => {
             await request(app)
                 .get(`/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send()
                 .expect(200)
         })

@@ -13,16 +13,13 @@ import Dashboard from './Dashboard';
 class App extends React.Component {
     componentDidMount = () => {
         const { fetchUserByToken } = this.props
-        
-        const token = localStorage.getItem('token')
-        if (token) {
-            fetchUserByToken(token)
-        }
+
+        fetchUserByToken()
     }
 
     render() {
         const { isLoggedIn, isLoading } = this.props
-        
+
         return (
             <DragDropContextProvider backend={HTML5Backend}>
                 {/* we use our history object here */}
@@ -35,7 +32,7 @@ class App extends React.Component {
                                 if (!isLoading && isLoggedIn) {
                                     return <Redirect to='/dashboard' />
                                 }
-                                if (!isLoading && !isLoggedIn){
+                                if (!isLoading && !isLoggedIn) {
                                     return <Home {...props} />
                                 }
                             }}
@@ -44,7 +41,7 @@ class App extends React.Component {
                                 if (!isLoading && isLoggedIn) {
                                     return <Dashboard {...props} />
                                 }
-                                if (!isLoading && !isLoggedIn){
+                                if (!isLoading && !isLoggedIn) {
                                     return <Redirect to='/' />
                                 }
                             }} />

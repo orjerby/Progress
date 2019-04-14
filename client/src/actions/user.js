@@ -9,7 +9,6 @@ export const loginUser = formValues => async dispatch => {
             type: SET_USER,
             payload: response.data
         })
-        localStorage.setItem("token", response.data.token)
     } catch (e) {
         console.log(e)
     } finally {
@@ -25,7 +24,6 @@ export const registerUser = formValues => async dispatch => {
             type: SET_USER,
             payload: response.data
         })
-        localStorage.setItem("token", response.data.token)
     } catch (e) {
         console.log(e.response)
     } finally {
@@ -33,13 +31,13 @@ export const registerUser = formValues => async dispatch => {
     }
 }
 
-export const fetchUserByToken = token => async dispatch => {
+export const fetchUserByToken = () => async dispatch => {
     dispatch({ type: SET_LOGGING_LOADING })
     try {
-        const response = await progress.get('/users/me', { headers: { 'Authorization': `Bearer ${token}` } })
+        const response = await progress.get('/users/me')
         dispatch({
             type: SET_USER,
-            payload: { user: response.data, token }
+            payload: { user: response.data }
         })
     } catch (e) {
         console.log(e)
@@ -51,11 +49,10 @@ export const fetchUserByToken = token => async dispatch => {
 export const logoutUser = token => async dispatch => {
     dispatch({ type: SET_LOGGING_LOADING })
     try {
-        await progress.post('/users/logout', null, { headers: { 'Authorization': `Bearer ${token}` } })
+        await progress.post('/users/logout', null)
         dispatch({
             type: UNSET_USER
         })
-        localStorage.removeItem('token')
     } catch (e) {
         console.log(e)
     } finally {

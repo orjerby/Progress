@@ -2,7 +2,7 @@ const request = require('supertest')
 const app = require('../src/app')
 const Sprint = require('../src/models/sprint')
 const Backlog = require('../src/models/backlog')
-const { issueOne, issueTwo, projectOne, backlogOne, sprintOne, userOne, userTwo, setupDatabase } = require('./fixtures/db')
+const { issueOne, issueTwo, projectOne, backlogOne, sprintOne, userOne, userTwo, userThree, setupDatabase } = require('./fixtures/db')
 
 beforeEach(setupDatabase)
 
@@ -11,7 +11,7 @@ describe('Issues', () => {
         test('Should not create issue with _id property', async () => {
             await request(app)
                 .post(`/issues/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: "or's issue",
                     _id: "111111111111111111111111"
@@ -22,7 +22,7 @@ describe('Issues', () => {
         test('Should not create issue without name property', async () => {
             await request(app)
                 .post(`/issues/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     description: "my first issue."
                 })
@@ -32,7 +32,7 @@ describe('Issues', () => {
         test("Should not create issue for backlog as not project's owner", async () => {
             const response = await request(app)
                 .post(`/issues/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send({
                     name: "or's issue"
                 })
@@ -50,7 +50,7 @@ describe('Issues', () => {
         test('Should create issue for backlog', async () => {
             const response = await request(app)
                 .post(`/issues/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: "or's issue",
                     description: "my first issue."
@@ -73,7 +73,7 @@ describe('Issues', () => {
         test('Should not transfer unknown issue', async () => {
             await request(app)
                 .post(`/issues/111111111111111111111111/transfer/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(404)
         })
@@ -81,7 +81,7 @@ describe('Issues', () => {
         test('Should not transfer to unknown sprint', async () => {
             await request(app)
                 .post(`/issues/${issueOne._id}/transfer/sprints/111111111111111111111111/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(404)
         })
@@ -89,7 +89,7 @@ describe('Issues', () => {
         test('Should not transfer to unknown project', async () => {
             await request(app)
                 .post(`/issues/${issueOne._id}/transfer/sprints/${sprintOne._id}/projects/111111111111111111111111`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(404)
         })
@@ -99,7 +99,7 @@ describe('Issues', () => {
             const backlog = await Backlog.findOne({ projectId: projectOne._id })
             await request(app)
                 .post(`/issues/${issueOne._id}/transfer/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send({})
                 .expect(404) // didn't find the project of this user
             const sprintUpdated = await Sprint.findById(sprintOne._id)
@@ -113,7 +113,7 @@ describe('Issues', () => {
             const backlog = await Backlog.findOne({ projectId: projectOne._id })
             await request(app)
                 .post(`/issues/${issueOne._id}/transfer/sprints/${sprintOne._id}/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(201)
             const sprintUpdated = await Sprint.findById(sprintOne._id)
@@ -127,7 +127,7 @@ describe('Issues', () => {
         test('Should not transfer unknown issue', async () => {
             await request(app)
                 .post(`/issues/111111111111111111111111/transfer/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(404)
         })
@@ -135,7 +135,7 @@ describe('Issues', () => {
         test('Should not transfer to unknown project', async () => {
             await request(app)
                 .post(`/issues/${issueTwo._id}/transfer/backlogs/projects/111111111111111111111111`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(404)
         })
@@ -145,7 +145,7 @@ describe('Issues', () => {
             const backlog = await Backlog.findOne({ projectId: projectOne._id })
             await request(app)
                 .post(`/issues/${issueTwo._id}/transfer/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send({})
                 .expect(404) // didn't find the project of this user
             const sprintUpdated = await Sprint.findById(sprintOne._id)
@@ -159,7 +159,7 @@ describe('Issues', () => {
             const backlog = await Backlog.findOne({ projectId: projectOne._id })
             await request(app)
                 .post(`/issues/${issueTwo._id}/transfer/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(201)
             const sprintUpdated = await Sprint.findById(sprintOne._id)
@@ -173,7 +173,7 @@ describe('Issues', () => {
         test('Should not update issue without properties', async () => {
             await request(app)
                 .patch(`/issues/${issueTwo._id}/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(400)
         })
@@ -181,7 +181,7 @@ describe('Issues', () => {
         test('Should not update issue with _id property', async () => {
             await request(app)
                 .patch(`/issues/${issueTwo._id}/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     _id: "111111111111111111111111"
                 })
@@ -200,7 +200,7 @@ describe('Issues', () => {
         test('Should not update issue with empty name', async () => {
             await request(app)
                 .patch(`/issues/${issueTwo._id}/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: ""
                 })
@@ -219,7 +219,7 @@ describe('Issues', () => {
         test("Should not update as not the project's owner", async () => {
             await request(app)
                 .patch(`/issues/${issueTwo._id}/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send({
                     name: "michal's first updated issue"
                 })
@@ -236,7 +236,7 @@ describe('Issues', () => {
         test('Should update issue', async () => {
             await request(app)
                 .patch(`/issues/${issueTwo._id}/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: "michal's first updated issue"
                 })
@@ -257,7 +257,7 @@ describe('Issues', () => {
         test('Should not update issue without properties', async () => {
             await request(app)
                 .patch(`/issues/${issueOne._id}/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(400)
         })
@@ -265,7 +265,7 @@ describe('Issues', () => {
         test('Should not update issue with _id property', async () => {
             await request(app)
                 .patch(`/issues/${issueOne._id}/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     _id: "111111111111111111111111"
                 })
@@ -284,7 +284,7 @@ describe('Issues', () => {
         test('Should not update issue with empty name', async () => {
             await request(app)
                 .patch(`/issues/${issueOne._id}/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: ""
                 })
@@ -303,7 +303,7 @@ describe('Issues', () => {
         test("Should not update as not the project's owner", async () => {
             await request(app)
                 .patch(`/issues/${issueOne._id}/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send({
                     name: "or's first updated issue"
                 })
@@ -320,7 +320,7 @@ describe('Issues', () => {
         test('Should update issue', async () => {
             await request(app)
                 .patch(`/issues/${issueOne._id}/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: "or's first updated issue"
                 })
@@ -341,7 +341,7 @@ describe('Issues', () => {
         test("Should not delete as not the project's owner", async () => {
             await request(app)
                 .delete(`/issues/${issueTwo._id}/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send()
                 .expect(404)
             const sprint = await Sprint.findById(sprintOne._id)
@@ -357,7 +357,7 @@ describe('Issues', () => {
         test('Should delete issue', async () => {
             await request(app)
                 .delete(`/issues/${issueTwo._id}/sprints/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send()
                 .expect(200)
             const sprint = await Sprint.findById(sprintOne._id)
@@ -375,7 +375,7 @@ describe('Issues', () => {
         test("Should not delete as not the project's owner", async () => {
             await request(app)
                 .delete(`/issues/${issueOne._id}/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send()
                 .expect(404)
             const backlog = await Backlog.findById(backlogOne._id)
@@ -391,7 +391,7 @@ describe('Issues', () => {
         test('Should delete issue', async () => {
             await request(app)
                 .delete(`/issues/${issueOne._id}/backlogs/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send()
                 .expect(200)
             const backlog = await Backlog.findById(backlogOne._id)

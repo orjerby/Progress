@@ -1,4 +1,5 @@
 const express = require('express')
+const cookieParser = require('cookie-parser')
 require('./db/mongoose')
 const path = require('path')
 const sprintRouter = require('./routers/sprint')
@@ -12,6 +13,7 @@ const app = express()
 
 // make express expect to get json in the api calls
 app.use(express.json())
+app.use(cookieParser())
 
 // make express knows about our client(react) folder in our heroku's files
 app.use(express.static(path.join(__dirname, '..', '..', 'client', 'build')))

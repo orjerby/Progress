@@ -15,6 +15,9 @@ router.post('/users', async (req, res) => {
     try {
         await user.save()
         const token = await user.generateAuthToken()
+        res.cookie('token', token, {
+            httpOnly: true
+        })
         res.status(201).send({ user, token })
     } catch (e) {
         res.status(400).send(e)
@@ -25,6 +28,9 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
         const token = await user.generateAuthToken()
+        res.cookie('token', token, {
+            httpOnly: true
+        })
         res.send({ user, token })
     } catch (e) {
         res.status(400).send()
@@ -38,6 +44,7 @@ router.post('/users/logout', auth, async (req, res) => {
         })
         await req.user.save()
 
+        res.clearCookie('token')
         res.send()
     } catch (e) {
         res.status(500).send()
@@ -48,6 +55,7 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     try {
         req.user.token = []
         await req.user.save()
+        res.clearCookie('token')
         res.send()
     } catch (e) {
         res.status(500).send()

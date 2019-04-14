@@ -12,7 +12,7 @@ describe('Projects', () => {
         test('Should not create project with _id property', async () => {
             await request(app)
                 .post('/projects')
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     _id: "111111111111111111111111",
                     name: "or's project"
@@ -25,7 +25,7 @@ describe('Projects', () => {
         test('Should not create project without name property', async () => {
             await request(app)
                 .post('/projects')
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     description: "My first project."
                 })
@@ -44,7 +44,7 @@ describe('Projects', () => {
         test('Should create project', async () => {
             const response = await request(app)
                 .post('/projects')
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: "or's project",
                     description: "My first project"
@@ -70,7 +70,7 @@ describe('Projects', () => {
         test('Should read all projects of user', async () => {
             const response = await request(app)
                 .get('/projects')
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send()
                 .expect(200)
             expect(response.body.length).toEqual(1)
@@ -81,7 +81,7 @@ describe('Projects', () => {
         test('Should not update project without properties', async () => {
             await request(app)
                 .patch(`/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({})
                 .expect(400)
             const project = await Project.findById(projectOne._id)
@@ -93,7 +93,7 @@ describe('Projects', () => {
         test('Should not update project with _id property', async () => {
             await request(app)
                 .patch(`/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     _id: "111111111111111111111111"
                 })
@@ -107,7 +107,7 @@ describe('Projects', () => {
         test('Should not update project with empty name', async () => {
             await request(app)
                 .patch(`/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: ""
                 })
@@ -134,7 +134,7 @@ describe('Projects', () => {
         test('Should update project', async () => {
             await request(app)
                 .patch(`/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send({
                     name: "or's updated project",
                     description: "My first updated project."
@@ -151,7 +151,7 @@ describe('Projects', () => {
         test("Should not delete project as not project's owner", async () => {
             await request(app)
                 .delete(`/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userTwo.token[0].token}`)
+                .set('Cookie', [`token=${userTwo.token[0].token}`])
                 .send()
                 .expect(404) // didn't find the project for this user
             const project = await Project.findById(projectOne._id)
@@ -165,7 +165,7 @@ describe('Projects', () => {
         test('Should delete project', async () => {
             await request(app)
                 .delete(`/projects/${projectOne._id}`)
-                .set('Authorization', `Bearer ${userOne.token[0].token}`)
+                .set('Cookie', [`token=${userOne.token[0].token}`])
                 .send()
                 .expect(200)
             const project = await Project.findById(projectOne._id)
